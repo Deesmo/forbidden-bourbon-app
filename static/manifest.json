@@ -3,8 +3,8 @@
   "short_name": "Forbidden",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0806",
-  "theme_color": "#0a0806",
+  "background_color": "#191926",
+  "theme_color": "#191926",
   "icons": [
     {
       "src": "/static/icon-192.png",
