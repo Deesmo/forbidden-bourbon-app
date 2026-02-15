@@ -28,12 +28,13 @@
     @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
     @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(201,169,110,0.08)}50%{box-shadow:0 0 30px rgba(201,169,110,0.15)}}
     #root{max-width:520px;margin:0 auto;min-height:100vh;position:relative;overflow:hidden;background:#191926}
-    .top-bar{position:sticky;top:0;z-index:100;background:rgba(25,25,38,0.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(201,169,110,0.1);padding-top:env(safe-area-inset-top,0px);padding-top:max(env(safe-area-inset-top,0px),50px)}
   </style>
 </head>
 <body style="background:#191926">
-  <div id="root" style="background:#191926;min-height:100vh;display:flex;align-items:center;justify-content:center">
-    <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64814befceaac1f82252cc31_logo-forbidden.svg" alt="" style="height:40px;opacity:0.6">
+  <div id="root" style="background:#191926">
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center">
+      <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64814befceaac1f82252cc31_logo-forbidden.svg" alt="" style="height:40px;opacity:0.6">
+    </div>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -709,7 +710,7 @@ function BarrelTab() {
 function MusicPlayer({audio, playing, toggle}) {
   return (
     <button onClick={toggle} style={{
-      position:"fixed",top:120,right:16,zIndex:200,
+      position:"fixed",top:60,right:16,zIndex:200,
       width:44,height:44,borderRadius:"50%",border:"1.5px solid rgba(201,169,110,0.35)",
       background:"rgba(25,25,38,0.9)",backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",
       color:playing?G.gold:G.mute,cursor:"pointer",
@@ -858,11 +859,9 @@ function App() {
       {age && <PromoPopup />}
 
       {/* Top Bar */}
-      <div className="top-bar">
-        <div style={{padding:"12px 20px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+      <div style={{position:"sticky",top:0,zIndex:100,background:"rgba(25,25,38,0.96)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderBottom:"1px solid rgba(201,169,110,0.1)",padding:"12px 20px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <img src={I.logo} alt="Forbidden" style={{height:30,cursor:"pointer"}} onClick={()=>go("home")} />
         <a href="https://shop.drinkforbidden.com/" target="_blank" rel="noopener noreferrer" style={{...Fb,fontSize:"0.82rem",letterSpacing:"0.15em",textTransform:"uppercase",color:G.bg,background:G.gold,padding:"8px 18px",borderRadius:3,textDecoration:"none",fontWeight:700}}>Shop</a>
-        </div>
       </div>
 
       {/* Content */}
