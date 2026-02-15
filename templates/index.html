@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#191926">
@@ -15,7 +15,7 @@
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{font-size:16px}
-    body{background:#191926;color:#f5efe6;font-family:'Cormorant Garamond',Georgia,serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    body{background:#191926;color:#f5efe6;font-family:'Cormorant Garamond',Georgia,serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
     ::selection{background:rgba(201,169,110,0.3);color:#f5efe6}
     ::placeholder{color:rgba(184,176,164,0.4);font-size:1.05rem}
     img{max-width:100%;display:block}
@@ -902,7 +902,7 @@ function App() {
         background:"rgba(25,25,38,0.97)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",
         borderTop:"1px solid rgba(201,169,110,0.12)",
         display:"flex",justifyContent:"space-around",
-        padding:"8px 0 env(safe-area-inset-bottom, 8px)",
+        padding:"8px 0 8px",
       }}>
         {TABS.map(t => (
           <button key={t.id} onClick={()=>go(t.id)} style={{
