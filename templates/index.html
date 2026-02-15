@@ -709,7 +709,7 @@ function BarrelTab() {
 function MusicPlayer({audio, playing, toggle}) {
   return (
     <button onClick={toggle} style={{
-      position:"fixed",top:"calc(env(safe-area-inset-top, 12px) + 52px)",right:16,zIndex:200,
+      position:"fixed",top:120,right:16,zIndex:200,
       width:44,height:44,borderRadius:"50%",border:"1.5px solid rgba(201,169,110,0.35)",
       background:"rgba(25,25,38,0.9)",backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",
       color:playing?G.gold:G.mute,cursor:"pointer",
@@ -859,7 +859,7 @@ function App() {
 
       {/* Top Bar */}
       <div style={{position:"sticky",top:0,zIndex:100,background:"rgba(25,25,38,0.96)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderBottom:"1px solid rgba(201,169,110,0.1)"}}>
-        <div className="safe-top" />
+        <div style={{height:54}} />
         <div style={{padding:"12px 20px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <img src={I.logo} alt="Forbidden" style={{height:30,cursor:"pointer"}} onClick={()=>go("home")} />
         <a href="https://shop.drinkforbidden.com/" target="_blank" rel="noopener noreferrer" style={{...Fb,fontSize:"0.82rem",letterSpacing:"0.15em",textTransform:"uppercase",color:G.bg,background:G.gold,padding:"8px 18px",borderRadius:3,textDecoration:"none",fontWeight:700}}>Shop</a>

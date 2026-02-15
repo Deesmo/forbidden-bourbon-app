@@ -3,7 +3,8 @@ import os, sqlite3, datetime
 
 app = Flask(__name__)
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "emails.db")
+DB_DIR = "/data" if os.path.isdir("/data") else os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(DB_DIR, "emails.db")
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
