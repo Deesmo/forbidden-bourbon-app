@@ -28,7 +28,7 @@
     @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
     @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(201,169,110,0.08)}50%{box-shadow:0 0 30px rgba(201,169,110,0.15)}}
     #root{max-width:520px;margin:0 auto;min-height:100vh;position:relative;overflow:hidden;background:#191926}
-    .safe-top{padding-top:env(safe-area-inset-top, 0px)}
+    .top-bar{position:sticky;top:0;z-index:100;background:rgba(25,25,38,0.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(201,169,110,0.1);padding-top:env(safe-area-inset-top,0px);padding-top:max(env(safe-area-inset-top,0px),50px)}
   </style>
 </head>
 <body style="background:#191926">
@@ -858,8 +858,7 @@ function App() {
       {age && <PromoPopup />}
 
       {/* Top Bar */}
-      <div style={{position:"sticky",top:0,zIndex:100,background:"rgba(25,25,38,0.96)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderBottom:"1px solid rgba(201,169,110,0.1)"}}>
-        <div style={{height:54}} />
+      <div className="top-bar">
         <div style={{padding:"12px 20px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <img src={I.logo} alt="Forbidden" style={{height:30,cursor:"pointer"}} onClick={()=>go("home")} />
         <a href="https://shop.drinkforbidden.com/" target="_blank" rel="noopener noreferrer" style={{...Fb,fontSize:"0.82rem",letterSpacing:"0.15em",textTransform:"uppercase",color:G.bg,background:G.gold,padding:"8px 18px",borderRadius:3,textDecoration:"none",fontWeight:700}}>Shop</a>
