@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0806">
+  <meta name="description" content="Forbidden Bourbon — Small Batch, Hand-Blended Bourbon Whiskeys crafted by Marianne Eaves.">
+  <title>Forbidden Bourbon</title>
+  <link rel="icon" type="image/svg+xml" href="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64814befceaac1f82252cc31_logo-forbidden.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+  <link rel="manifest" href="/static/manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:16px}
+    body{background:#0a0806;color:#f5efe6;font-family:'Cormorant Garamond',Georgia,serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    ::selection{background:rgba(201,169,110,0.3);color:#f5efe6}
+    ::placeholder{color:rgba(184,176,164,0.4);font-size:1.05rem}
+    img{max-width:100%;display:block}
+    a{color:inherit}
+    button{font-family:inherit}
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:#050403}
+    ::-webkit-scrollbar-thumb{background:rgba(201,169,110,0.25);border-radius:3px}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(201,169,110,0.08)}50%{box-shadow:0 0 30px rgba(201,169,110,0.15)}}
+    #root{max-width:520px;margin:0 auto;min-height:100vh;position:relative;overflow:hidden}
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ═══════════════════════════════════════════════════
+   CDN IMAGES — all from drinkforbidden.com
+   ═══════════════════════════════════════════════════ */
+const I = {
+  logo:        "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64814befceaac1f82252cc31_logo-forbidden.svg",
+  logoHeader:  "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/647d5606252da9f4beff664f_logo-header.svg",
+  sbProduct:   "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/647f6d96b15cb4f1d23988c1_product-small_batch.png",
+  sbFront:     "https://cdn.prod.website-files.com/6499a35eececddbc57190649/66343a609f3e535af4191fab_Small%20Batch%20Select.webp",
+  sbAlt:       "https://cdn.prod.website-files.com/6499a35eececddbc57190649/66343a67e9d0576bd06b13de_Small%20Batch%20Select%20-%20Alt.webp",
+  sbHeroBg:    "https://cdn.prod.website-files.com/6499a35eececddbc57190649/66343a51172bb59ef6e2c3ad_hero_bg-small_batch.webp",
+  singleLight: "https://cdn.prod.website-files.com/6499a35eececddbc57190649/66343ad3b110f1dfa5bc07a6_single-barrel__light.webp",
+  singleTop:   "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64a8510e6b7c43f671ad0d87_single_barrel-top.webp",
+  bottleTop:   "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64f11d0a485a69a200975ac2_forbidden_bourbon_top.png",
+  glass:       "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/6500ff6c3a2d18aabd23dd47_glass_of_bourbon.webp",
+  marLounge:   "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64a8519a735357144db8f493_marianne--lounge-1.webp",
+  marGlass:    "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64f0c9ddca035444cdf28d70_marianne_eaves_with_bourbon_glass.webp",
+  marTable:    "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64a8510e6dfc2c3cb2d11e1c_marianne-at_table.webp",
+  marAlt:      "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64f0bb77b66173a6a9af102d_marianne_eaves_lounging_alt.webp",
+  marSig:      "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/661d80ff8c3d47ac537de36e_marianne-sig.webp",
+  sigPen:      "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/647d4939b2a2a4d5c63c7e21_signature.png",
+  ingredients: "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64a8510e9ddd393cd6396b80_ingredients-1.webp",
+  corn:        "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/65158664d511dfe81f1519cc_Corn.webp",
+  wheat:       "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/65158655b73fb9aa78ec704b_Rye.webp",
+  barley:      "https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/6515864591776c660f4611ce_barley-png.webp",
+  lSF:         "https://cdn.prod.website-files.com/6499a35eececddbc57190649/68123916b15236374e34c8ba_laurel-sf.png",
+  lNY:         "https://cdn.prod.website-files.com/6499a35eececddbc57190649/681238e485970392732b0461_laurel-ny.png",
+  lLA:         "https://cdn.prod.website-files.com/6499a35eececddbc57190649/68123aea891636a3e3c2b805_laurel-la.png",
+  lDenver:     "https://cdn.prod.website-files.com/6499a35eececddbc57190649/6812387068f6aff998f69818_laurel-denver.png",
+  lAscot:      "https://cdn.prod.website-files.com/6499a35eececddbc57190649/681238846e25019251e39f4a_laurel-ascot.png",
+  lSFalt:      "https://cdn.prod.website-files.com/6499a35eececddbc57190649/681257fc7e6f2306fd1c5e1d_laurel-sf-alt.png",
+  lNYalt:      "https://cdn.prod.website-files.com/6499a35eececddbc57190649/68125805840f66fbc8831dd0_laurel-ny-alt.png",
+  lAscotAlt:   "https://cdn.prod.website-files.com/6499a35eececddbc57190649/6812583319ba9c35ed2e964f_laurel-ascot-alt.png",
+  forbes:      "https://cdn.prod.website-files.com/6499a35eececddbc57190649/697d445ad6690db64496d17b_forbes-logos-black-png-download-7.png",
+  maxim:       "https://cdn.prod.website-files.com/6499a35eececddbc57190649/697d444586d1abf82d55d042_Maxim-Logo.png",
+  today:       "https://cdn.prod.website-files.com/6499a35eececddbc57190649/697d440685d638dd5c13dc76_Today_2023.jpg",
+  news1:       "https://cdn.prod.website-files.com/6499a35eececddbc57190649/697d25334d90ab1f543352e4_619341150_17974706042987183_251388658924386137_n.jpg",
+  news2:       "https://cdn.prod.website-files.com/6499a35eececddbc57190649/695300257c2165410612575a_Screenshot%202025-12-29%20at%2015-25-20%20(20%20)%20Facebook.png",
+  news3:       "https://cdn.prod.website-files.com/6499a35eececddbc57190649/692e259815f080715c9079ef_Screenshot%202025-12-01%20at%2016-32-30%20(10)%20Facebook.png",
+  news4:       "https://cdn.prod.website-files.com/6499a35eececddbc57190649/68d3207079fb4f7b5e1f68d2_S1100905-Edit.jpg",
+  pBBC:        "https://cdn.prod.website-files.com/6499a35eececddbc57190649/663191c5c6cd2193f7f48652_BBC_horizontal-1.png",
+  pTricor:     "https://cdn.prod.website-files.com/6499a35eececddbc57190649/663191b8d19af47c175b2486_TB-Logo2022v2_1.png",
+  pHolotype:   "https://cdn.prod.website-files.com/6499a35eececddbc57190649/663191db88a1cd7f1e17780d_holotype%402x.png",
+  pWalnut:     "https://cdn.prod.website-files.com/6499a35eececddbc57190649/663100de49b8a8967cb6cb50_Walnut%20Grove%20Farms%20LOGO%20.png",
+};
+
+/* ═══════ THEME ═══════ */
+const G = {bg:"#0a0806",deep:"#050403",card:"#131110",card2:"#1a1714",gold:"#c9a96e",goldL:"#dfc48b",goldD:"#a8893f",cream:"#f5efe6",mute:"#b8b0a4",mute2:"#9a9389"};
+const Fs = {fontFamily:"'Playfair Display',Georgia,serif"};
+const Fb = {fontFamily:"'Cormorant Garamond',Georgia,serif"};
+const sigF = "invert(1) brightness(0.75) sepia(1) hue-rotate(5deg) saturate(0.5)";
+const pressF = "invert(1) brightness(0.8)";
+
+/* ═══════ SHARED COMPONENTS ═══════ */
+const GoldBtn = ({children, href, onClick, full}) => {
+  const s = {...Fb,fontSize:"0.95rem",letterSpacing:"0.18em",textTransform:"uppercase",fontWeight:700,
+    background:`linear-gradient(135deg,${G.gold},${G.goldD})`,color:G.bg,border:"none",borderRadius:4,
+    padding:"14px 32px",cursor:"pointer",textDecoration:"none",display:full?"block":"inline-block",
+    textAlign:"center",boxShadow:"0 4px 16px rgba(201,169,110,0.2)",transition:"all 0.3s ease"};
+  return href ? <a href={href} target="_blank" rel="noopener noreferrer" style={s}>{children}</a>
+               : <button onClick={onClick} style={s}>{children}</button>;
+};
+
+const OutlineBtn = ({children, href, onClick}) => {
+  const s = {...Fb,fontSize:"0.92rem",letterSpacing:"0.15em",textTransform:"uppercase",
+    background:"none",color:G.cream,border:"1px solid rgba(201,169,110,0.35)",borderRadius:4,
+    padding:"13px 26px",cursor:"pointer",textDecoration:"none",display:"inline-block",transition:"all 0.3s ease"};
+  return href ? <a href={href} target="_blank" rel="noopener noreferrer" style={s}>{children}</a>
+               : <button onClick={onClick} style={s}>{children}</button>;
+};
+
+const Label = ({children, center}) => (
+  <p style={{...Fb,fontSize:"0.82rem",letterSpacing:"0.28em",textTransform:"uppercase",color:G.gold,marginBottom:12,textAlign:center?"center":"left",fontWeight:600}}>{children}</p>
+);
+
+const Card = ({children, style:extra}) => (
+  <div style={{background:G.card,border:"1px solid rgba(201,169,110,0.1)",borderRadius:6,boxShadow:"0 2px 12px rgba(0,0,0,0.15)",...extra}}>{children}</div>
+);
+
+const Divider = () => (
+  <div style={{height:1,background:"linear-gradient(to right,transparent,rgba(201,169,110,0.15),transparent)",margin:"8px 0"}} />
+);
+
+
+/* ═══════════════════════════════════════
+   AGE GATE
+   ═══════════════════════════════════════ */
+function AgeGate({onYes}) {
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:9999,background:"rgba(5,4,3,0.97)",backdropFilter:"blur(24px)",WebkitBackdropFilter:"blur(24px)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <div style={{textAlign:"center",padding:"0 32px",maxWidth:400}}>
+        <img src={I.logo} alt="Forbidden" style={{height:64,margin:"0 auto 28px"}} />
+        <h2 style={{...Fs,fontSize:"1.8rem",color:G.cream,marginBottom:10,fontWeight:400}}>Welcome to <i style={{color:G.gold}}>Forbidden</i></h2>
+        <p style={{...Fb,fontSize:"1.2rem",color:G.mute,marginBottom:32,lineHeight:1.7}}>You must be 21 or older to enter this site.</p>
+        <div style={{display:"flex",gap:14,justifyContent:"center"}}>
+          <GoldBtn onClick={onYes}>Yes, I'm 21+</GoldBtn>
+          <OutlineBtn onClick={()=>window.location="https://google.com"}>No</OutlineBtn>
+        </div>
+        <p style={{...Fb,fontSize:"0.82rem",color:"rgba(184,176,164,0.3)",marginTop:32}}>Please drink responsibly.</p>
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════════
+   HOME TAB
+   ═══════════════════════════════════════ */
+function HomeTab({go}) {
+  const [show, setShow] = useState(false);
+  useEffect(() => { setTimeout(()=>setShow(true), 100); }, []);
+
+  return (
+    <div style={{animation:"fadeIn 0.5s ease"}}>
+      {/* ── Hero ── */}
+      <div style={{position:"relative",minHeight:460,display:"flex",alignItems:"flex-end",overflow:"hidden"}}>
+        <img src={I.sbHeroBg} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}} />
+        <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,rgba(10,8,6,0.25) 0%,rgba(10,8,6,0.55) 45%,rgba(10,8,6,0.97) 100%)"}} />
+        <div style={{position:"relative",zIndex:2,padding:"0 24px 32px",textAlign:"center",width:"100%"}}>
+          <img src={I.logo} alt="Forbidden" style={{height:42,margin:"0 auto 20px",opacity:show?1:0,transition:"opacity 0.7s ease 0.2s"}} />
+          <h1 style={{...Fs,fontSize:"clamp(2rem,7vw,2.8rem)",fontWeight:400,color:G.cream,lineHeight:1.15,marginBottom:14,
+            opacity:show?1:0,transform:show?"none":"translateY(16px)",transition:"all 0.8s ease 0.4s"}}>
+            Small Batch, Hand-Blended<br/><span style={{fontStyle:"italic",color:G.gold}}>Bourbon Whiskeys</span>
+          </h1>
+          <p style={{...Fb,fontSize:"1.2rem",color:G.mute,lineHeight:1.65,marginBottom:24,maxWidth:380,margin:"0 auto 24px",
+            opacity:show?1:0,transition:"opacity 0.7s ease 0.6s"}}>
+            Crafted by Kentucky's First Female Master Distiller, Marianne Eaves.
+          </p>
+          <img src={I.sbProduct} alt="Small Batch Bourbon" style={{
+            height:"clamp(200px,38vh,280px)",objectFit:"contain",margin:"0 auto",
+            filter:"drop-shadow(0 20px 50px rgba(0,0,0,0.6))",
+            opacity:show?1:0,transform:show?"none":"translateY(20px)",transition:"all 1s ease 0.8s"}} />
+        </div>
+      </div>
+
+      {/* ── Award Laurels ── */}
+      <div style={{background:G.deep,padding:"22px 12px",borderBottom:"1px solid rgba(201,169,110,0.1)",overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
+        <div style={{display:"flex",justifyContent:"center",gap:16,minWidth:"fit-content",padding:"0 8px"}}>
+          {[I.lSF,I.lNY,I.lLA,I.lDenver,I.lAscot].map((s,i) => (
+            <img key={i} src={s} alt="Award" style={{height:56,objectFit:"contain",opacity:0.9,flexShrink:0}} />
+          ))}
+        </div>
+      </div>
+
+      {/* ── Our Bourbons CTA ── */}
+      <div style={{padding:"36px 20px",textAlign:"center"}}>
+        <Label center>Our Bourbons</Label>
+        <p style={{...Fb,fontSize:"1.15rem",color:G.mute,lineHeight:1.6,marginBottom:20,maxWidth:360,margin:"0 auto 20px"}}>
+          Two expressions. One uncompromising standard.
+        </p>
+        <div style={{display:"flex",gap:16,justifyContent:"center",alignItems:"center",marginBottom:24}}>
+          <img src={I.sbFront} alt="Small Batch" style={{height:220,objectFit:"contain",filter:"drop-shadow(0 10px 24px rgba(0,0,0,0.4))"}} />
+          <img src={I.singleLight} alt="Single Barrel" style={{height:220,objectFit:"contain",filter:"drop-shadow(0 10px 24px rgba(0,0,0,0.4))"}} />
+        </div>
+        <div style={{display:"flex",gap:12,justifyContent:"center"}}>
+          <GoldBtn onClick={()=>go("bourbons")}>Explore</GoldBtn>
+          <OutlineBtn href="https://shop.drinkforbidden.com/">Shop</OutlineBtn>
+        </div>
+      </div>
+
+      <Divider />
+
+      {/* ── Feature Cards ── */}
+      <div style={{padding:"28px 20px"}}>
+        {[
+          {img:I.singleTop, label:"New Tastes", title:"Small Batch, Hand-Blended", desc:"Beautifully balanced, sweet and complex. A bourbon that rewards every sip."},
+          {img:I.ingredients, label:"New Ingredients", title:"Inspired by Southern Cooking", desc:"The first bold Kentucky bourbon made with white corn, white wheat and a high percentage of barley."},
+          {img:I.marTable, label:"Intentionally Crafted", title:"Thoughtfully Blended", desc:"A new twist on tradition that challenges expectations of what's possible with Bourbon."},
+        ].map((f,i) => (
+          <Card key={i} style={{overflow:"hidden",marginBottom:18}}>
+            <img src={f.img} alt={f.title} style={{width:"100%",height:200,objectFit:"cover"}} />
+            <div style={{padding:"20px 22px 24px"}}>
+              <Label>{f.label}</Label>
+              <h3 style={{...Fs,fontSize:"1.45rem",color:G.cream,marginBottom:10,fontWeight:400,lineHeight:1.3}}>{f.title}</h3>
+              <p style={{...Fb,fontSize:"1.1rem",color:G.mute,lineHeight:1.65}}>{f.desc}</p>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* ── Marianne Quote ── */}
+      <div style={{background:`linear-gradient(135deg,rgba(201,169,110,0.06),${G.deep})`,padding:"36px 24px",textAlign:"center",borderTop:"1px solid rgba(201,169,110,0.1)",borderBottom:"1px solid rgba(201,169,110,0.1)"}}>
+        <Label center>When Nothing is Forbidden</Label>
+        <p style={{...Fs,fontSize:"1.15rem",color:G.cream,fontStyle:"italic",lineHeight:1.85,marginBottom:18,maxWidth:440,margin:"0 auto 18px"}}>
+          &ldquo;In an industry steeped in tradition, change is often resisted, but the sounds, smells, sensations and sights I experience while traveling across the country spark my creativity and desire to add to these traditions with innovation while respecting the heritage.&rdquo;
+        </p>
+        <img src={I.marSig} alt="Signature" style={{height:34,margin:"0 auto",opacity:0.8,filter:sigF}} />
+      </div>
+
+      {/* ── Press ── */}
+      <div style={{padding:"32px 20px"}}>
+        <Label center>What They're Saying</Label>
+        {[
+          {text:"Let me cut to the chase — this is a terrific bourbon.", who:"Tony Sachs", logo:I.forbes},
+          {text:"It's delicious.", who:"Nick Stecher", logo:I.maxim},
+          {text:"This is some of the best bourbon I've ever had.", who:"Craig Melvin", logo:I.today},
+        ].map((q,i) => (
+          <Card key={i} style={{padding:"24px",marginBottom:14,textAlign:"center"}}>
+            <p style={{...Fs,fontSize:"1.15rem",color:G.cream,fontStyle:"italic",lineHeight:1.6,marginBottom:14}}>&ldquo;{q.text}&rdquo;</p>
+            <p style={{...Fb,fontSize:"0.95rem",color:G.mute,marginBottom:10}}>{q.who}</p>
+            <img src={q.logo} alt="" style={{height:22,objectFit:"contain",opacity:0.55,filter:pressF,margin:"0 auto"}} />
+          </Card>
+        ))}
+      </div>
+
+      {/* ── Store Locator Banner ── */}
+      <div style={{position:"relative",height:220,overflow:"hidden"}}>
+        <img src={I.marLounge} alt="" style={{width:"100%",height:"100%",objectFit:"cover",opacity:0.45}} />
+        <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,rgba(10,8,6,0.75),rgba(10,8,6,0.95))"}} />
+        <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"0 24px"}}>
+          <p style={{...Fs,fontSize:"1.4rem",color:G.cream,fontWeight:400,marginBottom:6}}>Find <i style={{color:G.gold}}>Forbidden</i> Near You</p>
+          <p style={{...Fb,fontSize:"1.05rem",color:G.mute,marginBottom:20}}>Available in select states and online</p>
+          <div style={{display:"flex",gap:12}}>
+            <OutlineBtn href="https://drinkforbidden.com/store-locator">Store Locator</OutlineBtn>
+            <GoldBtn href="https://shop.drinkforbidden.com/">Buy Online</GoldBtn>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════════
+   BOURBONS TAB
+   ═══════════════════════════════════════ */
+function BourbonsTab() {
+  const [sel, setSel] = useState(0);
+  const [bi, setBi] = useState(0);
+  const items = [
+    {
+      name:"Small Batch", full:"Small Batch Bourbon",
+      sub:"A bold and elegant classic spirit, redefined by Master Distiller Marianne Eaves.",
+      img:I.sbFront, imgAlt:I.sbAlt,
+      proof:"95.2", abv:"47.6%", age:"5+ Yrs", ml:"750",
+      mashbill:"75% White Corn · 12% White Wheat · 13% Malted Barley",
+      batches:[
+        {n:"Batch 1", nose:"Sorghum and pecan, hint of citrus oil and vanilla bean, leather and tobacco leaf", taste:"Sweet confectionery notes, orange zest, buttercream, subtle nuts and spices", finish:"Warm lingering creamy texture"},
+        {n:"Batch 2", nose:"Sweet vanilla and sugar cookie, red fruit, citrus and gentle baking spice, subtle tobacco leaf", taste:"Luscious creamy vanilla cake, lemon oil, buttery pecan", finish:"Smooth, warm long sweet"},
+        {n:"Batch 3", nose:"Sweet floral, spice and oak, dried tobacco leaf, citrus", taste:"Warm spice, sorghum, oak sugar, dried fruit and baked bread", finish:"Creamy, butter, sweet lingering warmth"},
+      ],
+      quote:"This small batch expression is crafted using an intricate hand blending method I created. My commitment is to keep Small Batch Forbidden at 50 barrels or less — a true small batch product. Proofed precisely to 95.2 to provide a smooth approachable profile for seasoned bourbon consumers and newbies alike.",
+      laurels:[I.lSFalt, I.lNYalt, I.lAscotAlt],
+    },
+    {
+      name:"Single Barrel", full:"Single Barrel Bourbon",
+      sub:"A bolder expression of Forbidden Bourbon. Each bottle has its own unique character and individuality.",
+      img:I.singleLight, imgAlt:I.singleTop,
+      proof:"Cask Str.", abv:"Varies", age:"5+ Yrs", ml:"750",
+      mashbill:"75% White Corn · 12% White Wheat · 13% Malted Barley",
+      batches:[
+        {n:"Expression", nose:"Sweet floral, spice and oak, dried tobacco leaf, citrus", taste:"Warm spice, sorghum, oak sugar, dried fruit and baked bread", finish:"Creamy, butter, sweet lingering warmth"},
+      ],
+      quote:"Each bottle of Single Barrel Forbidden Bourbon has its own unique character and individuality — a singular expression of our craft.",
+      laurels:[I.lSFalt, I.lNYalt],
+    },
+  ];
+  const p = items[sel];
+
+  return (
+    <div key={sel} style={{animation:"fadeIn 0.4s ease",padding:"20px"}}>
+      {/* Toggle */}
+      <div style={{display:"flex",gap:10,marginBottom:24}}>
+        {items.map((it,i) => (
+          <button key={i} onClick={()=>{setSel(i);setBi(0);}} style={{
+            ...Fb,flex:1,fontSize:"0.92rem",letterSpacing:"0.12em",textTransform:"uppercase",fontWeight:600,
+            background:sel===i?`linear-gradient(135deg,${G.gold},${G.goldD})`:"transparent",
+            border:`1.5px solid ${sel===i?G.gold:"rgba(201,169,110,0.25)"}`,
+            color:sel===i?G.bg:G.cream,padding:"13px 8px",borderRadius:4,cursor:"pointer",transition:"all 0.25s",
+            boxShadow:sel===i?"0 4px 16px rgba(201,169,110,0.2)":"none",
+          }}>{it.name}</button>
+        ))}
+      </div>
+
+      {/* Bottle Photo */}
+      <div style={{textAlign:"center",marginBottom:24,background:"radial-gradient(ellipse at center,rgba(201,169,110,0.05) 0%,transparent 70%)",padding:"24px 0"}}>
+        <img src={p.img} alt={p.full} style={{height:"clamp(280px,52vh,400px)",objectFit:"contain",margin:"0 auto",filter:"drop-shadow(0 16px 40px rgba(0,0,0,0.5))"}} />
+      </div>
+
+      {/* Laurels */}
+      <div style={{display:"flex",justifyContent:"center",gap:18,marginBottom:22}}>
+        {p.laurels.map((l,i) => <img key={i} src={l} alt="Award" style={{height:54,objectFit:"contain",opacity:0.9}} />)}
+      </div>
+
+      {/* Title */}
+      <h2 style={{...Fs,fontSize:"2rem",color:G.cream,fontWeight:400,marginBottom:10,textAlign:"center"}}>{p.full}</h2>
+      <p style={{...Fb,fontSize:"1.15rem",color:G.mute,lineHeight:1.65,marginBottom:24,textAlign:"center"}}>{p.sub}</p>
+
+      {/* Stats */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:22}}>
+        {[{l:"Proof",v:p.proof},{l:"ABV",v:p.abv},{l:"ML",v:p.ml},{l:"Age",v:p.age}].map((s,i)=>(
+          <div key={i} style={{textAlign:"center",padding:"14px 6px",border:"1px solid rgba(201,169,110,0.15)",borderRadius:4,background:"rgba(201,169,110,0.04)"}}>
+            <p style={{...Fs,fontSize:"1.3rem",color:G.gold}}>{s.v}</p>
+            <p style={{...Fb,fontSize:"0.75rem",letterSpacing:"0.12em",textTransform:"uppercase",color:G.mute,marginTop:4}}>{s.l}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Mashbill */}
+      <Card style={{padding:"20px",marginBottom:16}}>
+        <Label>Mashbill</Label>
+        <div style={{display:"flex",gap:18,alignItems:"center",marginBottom:10}}>
+          {[I.corn,I.wheat,I.barley].map((g,i) => <img key={i} src={g} alt="" style={{height:48,objectFit:"contain",opacity:0.75}} />)}
+        </div>
+        <p style={{...Fb,fontSize:"1.1rem",color:G.cream,lineHeight:1.5}}>{p.mashbill}</p>
+      </Card>
+
+      {/* Tasting Notes */}
+      <Card style={{padding:"20px",marginBottom:16}}>
+        <Label>Aroma, Taste &amp; Finish</Label>
+        {p.batches.length > 1 && (
+          <div style={{display:"flex",gap:8,marginBottom:16,overflowX:"auto"}}>
+            {p.batches.map((b,i) => (
+              <button key={i} onClick={()=>setBi(i)} style={{
+                ...Fb,fontSize:"0.88rem",padding:"8px 18px",borderRadius:4,cursor:"pointer",transition:"all 0.2s",whiteSpace:"nowrap",
+                background:bi===i?"rgba(201,169,110,0.15)":"transparent",
+                border:`1px solid ${bi===i?"rgba(201,169,110,0.35)":"rgba(201,169,110,0.12)"}`,
+                color:bi===i?G.gold:G.mute,fontWeight:bi===i?600:400,
+              }}>{b.n}</button>
+            ))}
+          </div>
+        )}
+        <div style={{borderLeft:`3px solid ${G.gold}`,paddingLeft:20}}>
+          {[["Nose",p.batches[bi]?.nose],["Taste",p.batches[bi]?.taste],["Finish",p.batches[bi]?.finish]].map(([k,v])=>(
+            <p key={k} style={{...Fb,fontSize:"1.05rem",color:G.mute,marginBottom:12,lineHeight:1.6}}>
+              <span style={{color:G.goldL,fontWeight:700}}>{k}</span> — {v}
+            </p>
+          ))}
+        </div>
+      </Card>
+
+      {/* Alt bottle + glass */}
+      <div style={{display:"flex",justifyContent:"center",gap:20,marginBottom:18,alignItems:"center",padding:"8px 0"}}>
+        <img src={p.imgAlt} alt="" style={{height:170,objectFit:"contain",borderRadius:6}} />
+        <img src={I.glass} alt="" style={{height:130,objectFit:"contain",borderRadius:6,opacity:0.85}} />
+      </div>
+
+      {/* Quote */}
+      <div style={{textAlign:"center",padding:"22px 12px",borderTop:"1px solid rgba(201,169,110,0.12)",borderBottom:"1px solid rgba(201,169,110,0.12)",marginBottom:20}}>
+        <p style={{...Fb,fontSize:"0.78rem",letterSpacing:"0.22em",textTransform:"uppercase",color:G.gold,marginBottom:12,fontWeight:600}}>From our Master Distiller</p>
+        <p style={{...Fs,fontSize:"1.1rem",color:G.cream,fontStyle:"italic",lineHeight:1.75,marginBottom:14}}>&ldquo;{p.quote}&rdquo;</p>
+        <img src={I.marSig} alt="" style={{height:30,margin:"0 auto",opacity:0.7,filter:sigF}} />
+      </div>
+
+      {/* Buy */}
+      <GoldBtn href="https://shop.drinkforbidden.com/" full>Buy Online</GoldBtn>
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════════
+   ABOUT TAB
+   ═══════════════════════════════════════ */
+function AboutTab() {
+  return (
+    <div style={{animation:"fadeIn 0.5s ease"}}>
+      {/* Banner */}
+      <div style={{position:"relative",height:280,overflow:"hidden"}}>
+        <img src={I.marLounge} alt="Marianne Eaves" style={{width:"100%",height:"100%",objectFit:"cover"}} />
+        <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(10,8,6,0.95) 10%,rgba(10,8,6,0.25) 60%,transparent)"}} />
+        <div style={{position:"absolute",bottom:24,left:24,right:24}}>
+          <h2 style={{...Fs,fontSize:"1.9rem",color:G.cream,fontWeight:400,marginBottom:6}}>Daring To Be <i style={{color:G.gold}}>First</i></h2>
+          <p style={{...Fb,fontSize:"1.05rem",color:G.mute}}>The first bourbon of its kind</p>
+        </div>
+      </div>
+
+      <div style={{padding:"28px 20px"}}>
+        {/* Portrait */}
+        <div style={{display:"flex",gap:20,marginBottom:24,alignItems:"center"}}>
+          <img src={I.marGlass} alt="Marianne" style={{width:110,height:145,objectFit:"cover",borderRadius:6,flexShrink:0,boxShadow:"0 4px 20px rgba(0,0,0,0.3)"}} />
+          <div>
+            <p style={{...Fs,fontSize:"1.3rem",color:G.gold,fontStyle:"italic"}}>Marianne Eaves</p>
+            <p style={{...Fb,fontSize:"0.88rem",color:G.mute,letterSpacing:"0.18em",textTransform:"uppercase",marginBottom:10,fontWeight:600}}>Master Distiller</p>
+            <p style={{...Fb,fontSize:"1.05rem",color:G.mute,lineHeight:1.65}}>Marianne Eaves is no stranger to being the first. She is ushering in a new era in bourbon.</p>
+          </div>
+        </div>
+
+        {/* Bio */}
+        {[
+          'Recognized in Whiskey Advocate as "the Next Generation," honored by Forbes in the 2015 Food & Drink 30 under 30, and named one of America\'s Top 40 Under 40 Tastemakers by Wine Enthusiast Magazine.',
+          "Eaves began her distillery career at Brown-Forman, parent company of brands like Woodford Reserve and Jack Daniels. She eventually made history as Kentucky's First Female Bourbon Master Distiller since Prohibition.",
+          "Before obtaining a degree in Chemical Engineering from the University of Louisville, Eaves' early career was in the arts. She brings both her creative and scientific background into every bottle of Forbidden.",
+        ].map((p,i) => (
+          <p key={i} style={{...Fb,fontSize:"1.1rem",color:G.mute,lineHeight:1.8,marginBottom:16}}>{p}</p>
+        ))}
+
+        {/* Signature Quote */}
+        <div style={{borderTop:"1px solid rgba(201,169,110,0.15)",paddingTop:22,marginTop:12,marginBottom:28}}>
+          <p style={{...Fs,fontSize:"1.1rem",color:G.cream,fontStyle:"italic",lineHeight:1.75,marginBottom:14}}>
+            &ldquo;Total creativity involves a certain degree of rebellion. To be completely creative, I tend to do things that are a little bit forbidden.&rdquo;
+          </p>
+          <img src={I.sigPen} alt="" style={{height:28,opacity:0.6,filter:sigF}} />
+        </div>
+
+        {/* Alt photo */}
+        <div style={{borderRadius:6,overflow:"hidden",marginBottom:28,boxShadow:"0 4px 24px rgba(0,0,0,0.3)"}}>
+          <img src={I.marAlt} alt="Marianne Eaves" style={{width:"100%",height:220,objectFit:"cover"}} />
+        </div>
+
+        {/* Craftsmanship */}
+        <Card style={{padding:"22px",marginBottom:24}}>
+          <div style={{display:"flex",gap:16,alignItems:"center",marginBottom:18}}>
+            <img src={I.bottleTop} alt="" style={{height:64,objectFit:"contain"}} />
+            <div>
+              <Label>From Grain to Glass</Label>
+              <p style={{...Fs,fontSize:"1.2rem",color:G.cream,fontWeight:400,lineHeight:1.3}}>Boldly Trespassing in Forbidden Spaces</p>
+            </div>
+          </div>
+          {[
+            {t:"Food-Grade Grain", d:"White corn and winter white wheat — cuisine quality, not feed grade."},
+            {t:"Low & Slow Fermentation", d:"Uncommon process for more flavor from our yeast."},
+            {t:"Hand-Blended", d:"Every barrel tasted. 50 barrels or less per batch."},
+            {t:"Glass Ceiling Breaking", d:"History making Master Distiller, Marianne Eaves."},
+          ].map((c,i) => (
+            <div key={i} style={{padding:"14px 0",borderTop:i>0?"1px solid rgba(201,169,110,0.08)":"none"}}>
+              <p style={{...Fs,fontSize:"1.05rem",color:G.gold,marginBottom:5,fontWeight:500}}>{c.t}</p>
+              <p style={{...Fb,fontSize:"1.02rem",color:G.mute,lineHeight:1.6}}>{c.d}</p>
+            </div>
+          ))}
+        </Card>
+
+        {/* Partners */}
+        <Label center>Our Partners</Label>
+        <div style={{display:"flex",justifyContent:"center",gap:22,flexWrap:"wrap",alignItems:"center",padding:"4px 0"}}>
+          {[I.pBBC,I.pTricor,I.pHolotype,I.pWalnut].map((l,i) => (
+            <img key={i} src={l} alt="" style={{height:30,objectFit:"contain",opacity:0.5,filter:"invert(1) brightness(0.7)"}} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════════
+   NEWS TAB
+   ═══════════════════════════════════════ */
+function NewsTab() {
+  const arts = [
+    {img:I.news1, date:"Jan 30, 2026", title:"Romantic Bourbon Cocktails with Chocolate Pairings", ex:"Set the mood with a pairing that never misses: chocolate and whiskey.", url:"https://drinkforbidden.com/news/popular-romantic-bourbon-cocktails-with-chocolate-pairings"},
+    {img:I.news2, date:"Dec 29, 2025", title:"New Year Resolutions and Bourbon Cocktail Trends", ex:"Flavor and reliability for effortless cocktails.", url:"https://drinkforbidden.com/news/new-year-resolutions-and-bourbon-cocktail-trends"},
+    {img:I.news3, date:"Nov 26, 2025", title:"Give the Gift of Forbidden for the Holidays", ex:"When the holidays call for something memorable.", url:"https://drinkforbidden.com/news/give-the-gift-of-forbidden-small-batch-and-single-barrel-bourbons-for-the-holiday-season"},
+    {img:I.news4, date:"Oct 1, 2025", title:"Single Barrel Secrets: Most Exclusive Bottlings", ex:"Bourbon from a single cask, not blended from multiple barrels.", url:"https://drinkforbidden.com/news/single-barrel-secrets-unpacking-bourbons-most-exclusive-bottlings"},
+  ];
+  return (
+    <div style={{animation:"fadeIn 0.5s ease",padding:"24px 20px"}}>
+      <h2 style={{...Fs,fontSize:"1.8rem",color:G.cream,fontWeight:400,textAlign:"center",marginBottom:6}}>Something to <i style={{color:G.gold}}>Talk About</i></h2>
+      <p style={{...Fb,fontSize:"1.1rem",color:G.mute,textAlign:"center",marginBottom:24}}>Latest from Forbidden Bourbon</p>
+      {arts.map((a,i) => (
+        <a key={i} href={a.url} target="_blank" rel="noopener noreferrer" style={{textDecoration:"none",display:"block",marginBottom:14}}>
+          <Card style={{overflow:"hidden",display:"flex"}}>
+            <img src={a.img} alt="" style={{width:120,minHeight:120,objectFit:"cover",flexShrink:0}} />
+            <div style={{padding:"16px 18px",minWidth:0}}>
+              <p style={{...Fb,fontSize:"0.75rem",letterSpacing:"0.14em",textTransform:"uppercase",color:G.gold,marginBottom:5,fontWeight:600}}>{a.date}</p>
+              <h3 style={{...Fs,fontSize:"1.05rem",color:G.cream,fontWeight:400,lineHeight:1.35,marginBottom:6}}>{a.title}</h3>
+              <p style={{...Fb,fontSize:"0.95rem",color:G.mute,lineHeight:1.5}}>{a.ex}</p>
+            </div>
+          </Card>
+        </a>
+      ))}
+      <div style={{marginTop:28}}>
+        <Label center>Featured In</Label>
+        <div style={{display:"flex",justifyContent:"center",gap:28,alignItems:"center"}}>
+          {[I.forbes,I.maxim,I.today].map((l,i) => (
+            <img key={i} src={l} alt="" style={{height:24,objectFit:"contain",opacity:0.5,filter:pressF}} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════════
+   CONTACT TAB
+   ═══════════════════════════════════════ */
+function ContactTab() {
+  const [email,setEmail]=useState(""); const [name,setName]=useState(""); const [done,setDone]=useState(false);
+  const inp={...Fb,fontSize:"1.1rem",color:G.cream,background:"rgba(201,169,110,0.05)",border:"1.5px solid rgba(201,169,110,0.25)",borderRadius:4,padding:"14px 18px",outline:"none",width:"100%",transition:"border-color 0.3s"};
+
+  return (
+    <div style={{animation:"fadeIn 0.5s ease",padding:"28px 20px",textAlign:"center",maxWidth:440,margin:"0 auto"}}>
+      <img src={I.logo} alt="Forbidden" style={{height:48,margin:"0 auto 24px"}} />
+      <Label center>Adventure with an Ounce of Rebellion</Label>
+      <h2 style={{...Fs,fontSize:"1.8rem",color:G.cream,fontWeight:400,marginBottom:10}}>Stay <i style={{color:G.gold}}>Connected</i></h2>
+      <p style={{...Fb,fontSize:"1.1rem",color:G.mute,lineHeight:1.65,marginBottom:32}}>Be the first to receive exclusive event invites, new product announcements, and more.</p>
+
+      {!done ? (
+        <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:32}}>
+          <input type="text" placeholder="Name" value={name} onChange={e=>setName(e.target.value)} style={inp} />
+          <input type="email" placeholder="Email Address" value={email} onChange={e=>setEmail(e.target.value)} style={inp} />
+          <GoldBtn onClick={()=>{if(email)setDone(true)}} full>Subscribe</GoldBtn>
+        </div>
+      ) : (
+        <Card style={{padding:"28px",marginBottom:32,animation:"fadeIn 0.4s ease"}}>
+          <p style={{...Fs,fontSize:"1.3rem",color:G.gold,marginBottom:6}}>Thank you!</p>
+          <p style={{...Fb,fontSize:"1.05rem",color:G.mute}}>Your submission has been received.</p>
+        </Card>
+      )}
+
+      <Card style={{padding:"28px",marginBottom:28}}>
+        <h3 style={{...Fs,fontSize:"1.4rem",color:G.cream,fontWeight:400,marginBottom:10}}>Find <i style={{color:G.gold}}>Forbidden</i> Near You</h3>
+        <p style={{...Fb,fontSize:"1.05rem",color:G.mute,marginBottom:20}}>Available in select states and online.</p>
+        <div style={{display:"flex",gap:12,justifyContent:"center"}}>
+          <OutlineBtn href="https://drinkforbidden.com/store-locator">Store Locator</OutlineBtn>
+          <GoldBtn href="https://shop.drinkforbidden.com/">Buy Online</GoldBtn>
+        </div>
+      </Card>
+
+      <div style={{display:"flex",justifyContent:"center",gap:20}}>
+        {[{n:"Instagram",u:"https://www.instagram.com/forbiddenbourbon/"},{n:"Facebook",u:"https://www.facebook.com/forbiddenbourbon"}].map((s,i)=>(
+          <a key={i} href={s.u} target="_blank" rel="noopener noreferrer" style={{...Fb,fontSize:"1rem",color:G.mute,textDecoration:"none",borderBottom:"1px solid rgba(201,169,110,0.25)",paddingBottom:3}}>{s.n}</a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══════ MUSIC PLAYER ═══════ */
+function MusicPlayer() {
+  const [playing, setPlaying] = useState(false);
+  const [audio] = useState(() => {
+    const a = new Audio("/static/lounge.mp3");
+    a.loop = true;
+    a.volume = 0.35;
+    return a;
+  });
+
+  const toggle = () => {
+    if (playing) { audio.pause(); }
+    else { audio.play().catch(()=>{}); }
+    setPlaying(!playing);
+  };
+
+  useEffect(() => { return () => { audio.pause(); }; }, []);
+
+  return (
+    <button onClick={toggle} style={{
+      position:"fixed",top:60,right:16,zIndex:200,
+      width:44,height:44,borderRadius:"50%",border:"1.5px solid rgba(201,169,110,0.35)",
+      background:"rgba(10,8,6,0.9)",backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",
+      color:playing?G.gold:G.mute,cursor:"pointer",
+      display:"flex",alignItems:"center",justifyContent:"center",
+      boxShadow:"0 2px 12px rgba(0,0,0,0.3)",transition:"all 0.3s ease",
+    }}>
+      {playing ? (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+      ) : (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      )}
+    </button>
+  );
+}
+
+
+/* ═══════════════════════════════════════
+   MAIN APP
+   ═══════════════════════════════════════ */
+const TABS = [
+  {id:"home",    label:"Home",     d:"M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0a1 1 0 01-1-1v-4a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1"},
+  {id:"bourbons",label:"Bourbons", d:"M12 19V6M5 12l7-7 7 7M8 21h8M9 3h6"},
+  {id:"about",   label:"About",    d:"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"},
+  {id:"news",    label:"News",     d:"M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2zM7 8h10M7 12h10M7 16h6"},
+  {id:"contact", label:"Contact",  d:"M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"},
+];
+
+function App() {
+  const [age, setAge] = useState(false);
+  const [tab, setTab] = useState("home");
+  const go = (id) => { setTab(id); window.scrollTo({top:0,behavior:"smooth"}); };
+
+  return (
+    <>
+      {!age && <AgeGate onYes={()=>setAge(true)} />}
+
+      {/* Music Player */}
+      {age && <MusicPlayer />}
+
+      {/* Top Bar */}
+      <div style={{position:"sticky",top:0,zIndex:100,background:"rgba(10,8,6,0.96)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderBottom:"1px solid rgba(201,169,110,0.1)",padding:"12px 20px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <img src={I.logo} alt="Forbidden" style={{height:30,cursor:"pointer"}} onClick={()=>go("home")} />
+        <a href="https://shop.drinkforbidden.com/" target="_blank" rel="noopener noreferrer" style={{...Fb,fontSize:"0.82rem",letterSpacing:"0.15em",textTransform:"uppercase",color:G.bg,background:G.gold,padding:"8px 18px",borderRadius:3,textDecoration:"none",fontWeight:700}}>Shop</a>
+      </div>
+
+      {/* Content */}
+      <div style={{paddingBottom:80}}>
+        {tab==="home"     && <HomeTab go={go} />}
+        {tab==="bourbons" && <BourbonsTab />}
+        {tab==="about"    && <AboutTab />}
+        {tab==="news"     && <NewsTab />}
+        {tab==="contact"  && <ContactTab />}
+      </div>
+
+      {/* Footer */}
+      <div style={{background:G.deep,padding:"28px 20px 88px",borderTop:"1px solid rgba(201,169,110,0.08)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",gap:20,marginBottom:18,flexWrap:"wrap"}}>
+          <div>
+            <img src={I.logoHeader} alt="Forbidden" style={{height:26,marginBottom:8}} />
+            <p style={{...Fb,fontSize:"0.88rem",color:G.mute}}>Wheated Bourbon | A Twist on Tradition</p>
+          </div>
+          <div style={{display:"flex",gap:16}}>
+            <a href="https://www.instagram.com/forbiddenbourbon/" target="_blank" rel="noopener noreferrer" style={{...Fb,fontSize:"0.88rem",color:G.mute,textDecoration:"none"}}>Instagram</a>
+            <a href="https://www.facebook.com/forbiddenbourbon" target="_blank" rel="noopener noreferrer" style={{...Fb,fontSize:"0.88rem",color:G.mute,textDecoration:"none"}}>Facebook</a>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:14,marginBottom:10}}>
+          <a href="https://drinkforbidden.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" style={{...Fb,fontSize:"0.78rem",color:"rgba(184,176,164,0.35)",textDecoration:"none"}}>Privacy</a>
+          <a href="https://drinkforbidden.com/legal/terms-and-condition" target="_blank" rel="noopener noreferrer" style={{...Fb,fontSize:"0.78rem",color:"rgba(184,176,164,0.35)",textDecoration:"none"}}>Terms</a>
+          <a href="https://drinkforbidden.com" target="_blank" rel="noopener noreferrer" style={{...Fb,fontSize:"0.78rem",color:"rgba(184,176,164,0.35)",textDecoration:"none"}}>Website</a>
+        </div>
+        <p style={{...Fb,fontSize:"0.72rem",color:"rgba(184,176,164,0.22)"}}>© 2023 Small Batch Medicinal Spirits Company, LLC | All Rights Reserved</p>
+      </div>
+
+      {/* Bottom Tab Bar */}
+      <div style={{
+        position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",
+        width:"100%",maxWidth:520,zIndex:100,
+        background:"rgba(10,8,6,0.97)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",
+        borderTop:"1px solid rgba(201,169,110,0.12)",
+        display:"flex",justifyContent:"space-around",
+        padding:"8px 0 env(safe-area-inset-bottom, 8px)",
+      }}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={()=>go(t.id)} style={{
+            background:"none",border:"none",cursor:"pointer",
+            display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"5px 10px",
+            color:tab===t.id?G.gold:G.mute,transition:"color 0.2s",
+          }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d={t.d} />
+            </svg>
+            <span style={{...Fb,fontSize:"0.68rem",letterSpacing:"0.08em",textTransform:"uppercase",fontWeight:tab===t.id?600:400}}>{t.label}</span>
+          </button>
+        ))}
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
