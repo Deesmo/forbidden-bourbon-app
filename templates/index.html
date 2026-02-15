@@ -28,6 +28,7 @@
     @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
     @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(201,169,110,0.08)}50%{box-shadow:0 0 30px rgba(201,169,110,0.15)}}
     #root{max-width:520px;margin:0 auto;min-height:100vh;position:relative;overflow:hidden;background:#191926}
+    .safe-top{padding-top:env(safe-area-inset-top, 0px)}
   </style>
 </head>
 <body style="background:#191926">
@@ -286,7 +287,7 @@ function BourbonsTab() {
       name:"Single Barrel", full:"Single Barrel Bourbon",
       sub:"A bolder expression of Forbidden Bourbon. Each bottle has its own unique character and individuality.",
       img:I.singleLight, imgAlt:I.singleTop,
-      proof:"Cask Str.", abv:"Varies", age:"5+ Yrs", ml:"750",
+      proof:"Cask Str.", abv:"Varies", age:"7+ Yrs", ml:"750",
       mashbill:"75% White Corn · 12% White Wheat · 13% Malted Barley",
       batches:[
         {n:"Expression", nose:"Sweet floral, spice and oak, dried tobacco leaf, citrus", taste:"Warm spice, sorghum, oak sugar, dried fruit and baked bread", finish:"Creamy, butter, sweet lingering warmth"},
@@ -738,6 +739,78 @@ const TABS = [
   {id:"contact", label:"Contact",  d:"M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"},
 ];
 
+/* ═══════ PROMO POPUP ═══════ */
+function PromoPopup() {
+  const [show, setShow] = useState(false);
+  const [step, setStep] = useState("offer"); // offer | email | coupon
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShow(true), 15000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const submitEmail = async () => {
+    if (!email || !email.includes("@")) return;
+    setSubmitting(true);
+    try {
+      await fetch("/api/subscribe", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({email})
+      });
+    } catch(e) {}
+    setSubmitting(false);
+    setStep("coupon");
+  };
+
+  if (!show) return null;
+
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",padding:20,background:"rgba(0,0,0,0.7)",backdropFilter:"blur(6px)",WebkitBackdropFilter:"blur(6px)",animation:"fadeIn 0.4s ease"}}>
+      <div style={{background:"#1f1f30",border:"1.5px solid rgba(201,169,110,0.35)",borderRadius:12,padding:"32px 24px",maxWidth:360,width:"100%",textAlign:"center",position:"relative",boxShadow:"0 20px 60px rgba(0,0,0,0.5)"}}>
+        {/* Close X */}
+        <button onClick={()=>setShow(false)} style={{position:"absolute",top:12,right:12,background:"none",border:"none",color:G.mute,cursor:"pointer",fontSize:"1.4rem",lineHeight:1,padding:4}}>✕</button>
+
+        {step === "offer" && (<>
+          <div style={{width:50,height:50,borderRadius:"50%",background:"rgba(201,169,110,0.12)",border:"1px solid rgba(201,169,110,0.3)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}>
+            <span style={{fontSize:"1.5rem"}}>🥃</span>
+          </div>
+          <h3 style={{...Fs,fontSize:"1.5rem",color:G.cream,fontWeight:400,marginBottom:8}}>Save <span style={{color:G.gold}}>15%</span></h3>
+          <p style={{...Fb,fontSize:"1.1rem",color:G.mute,lineHeight:1.6,marginBottom:24}}>On your first purchase of Forbidden Bourbon</p>
+          <GoldBtn onClick={()=>setStep("email")} full>Yes, I Want 15% Off</GoldBtn>
+          <button onClick={()=>setShow(false)} style={{...Fb,fontSize:"0.9rem",color:G.mute2,background:"none",border:"none",cursor:"pointer",marginTop:14,display:"block",width:"100%"}}>No thanks</button>
+        </>)}
+
+        {step === "email" && (<>
+          <h3 style={{...Fs,fontSize:"1.4rem",color:G.cream,fontWeight:400,marginBottom:8}}>Enter Your Email</h3>
+          <p style={{...Fb,fontSize:"1rem",color:G.mute,lineHeight:1.6,marginBottom:20}}>We'll send your 15% discount code right away.</p>
+          <input type="email" placeholder="your@email.com" value={email} onChange={e=>setEmail(e.target.value)}
+            style={{...Fb,fontSize:"1.1rem",color:G.cream,background:"rgba(201,169,110,0.05)",border:"1.5px solid rgba(201,169,110,0.25)",borderRadius:4,padding:"14px 18px",outline:"none",width:"100%",marginBottom:14}} />
+          <GoldBtn onClick={submitEmail} full>{submitting ? "Saving..." : "Get My Coupon"}</GoldBtn>
+          <button onClick={()=>setStep("offer")} style={{...Fb,fontSize:"0.9rem",color:G.mute2,background:"none",border:"none",cursor:"pointer",marginTop:14,display:"block",width:"100%"}}>Back</button>
+        </>)}
+
+        {step === "coupon" && (<>
+          <div style={{width:50,height:50,borderRadius:"50%",background:"rgba(201,169,110,0.12)",border:"1px solid rgba(201,169,110,0.3)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}>
+            <span style={{fontSize:"1.5rem"}}>🎉</span>
+          </div>
+          <h3 style={{...Fs,fontSize:"1.4rem",color:G.cream,fontWeight:400,marginBottom:8}}>Your Coupon Code</h3>
+          <div style={{background:"rgba(201,169,110,0.1)",border:"2px dashed rgba(201,169,110,0.4)",borderRadius:8,padding:"16px",margin:"16px 0",cursor:"pointer"}}
+            onClick={()=>{navigator.clipboard&&navigator.clipboard.writeText("nothingisforbidden")}}>
+            <p style={{...Fs,fontSize:"1.5rem",color:G.gold,letterSpacing:"0.05em"}}>nothingisforbidden</p>
+            <p style={{...Fb,fontSize:"0.85rem",color:G.mute,marginTop:6}}>Tap to copy</p>
+          </div>
+          <p style={{...Fb,fontSize:"0.95rem",color:G.mute,lineHeight:1.6,marginBottom:20}}>Use this code at checkout for 15% off your first order.</p>
+          <GoldBtn href="https://shop.drinkforbidden.com/" full>Shop Now</GoldBtn>
+          <button onClick={()=>setShow(false)} style={{...Fb,fontSize:"0.9rem",color:G.mute2,background:"none",border:"none",cursor:"pointer",marginTop:14,display:"block",width:"100%"}}>Close</button>
+        </>)}
+      </div>
+    </div>
+  );
+}
+
+
 function App() {
   const [age, setAge] = useState(false);
   const [tab, setTab] = useState("home");
@@ -781,10 +854,16 @@ function App() {
       {/* Music Player */}
       {age && <MusicPlayer audio={audio} playing={playing} toggle={toggleMusic} />}
 
+      {/* Promo Popup - 15 seconds after age gate */}
+      {age && <PromoPopup />}
+
       {/* Top Bar */}
-      <div style={{position:"sticky",top:0,zIndex:100,background:"rgba(25,25,38,0.96)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderBottom:"1px solid rgba(201,169,110,0.1)",padding:"env(safe-area-inset-top, 12px) 20px 12px 20px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+      <div style={{position:"sticky",top:0,zIndex:100,background:"rgba(25,25,38,0.96)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderBottom:"1px solid rgba(201,169,110,0.1)"}}>
+        <div className="safe-top" />
+        <div style={{padding:"12px 20px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <img src={I.logo} alt="Forbidden" style={{height:30,cursor:"pointer"}} onClick={()=>go("home")} />
         <a href="https://shop.drinkforbidden.com/" target="_blank" rel="noopener noreferrer" style={{...Fb,fontSize:"0.82rem",letterSpacing:"0.15em",textTransform:"uppercase",color:G.bg,background:G.gold,padding:"8px 18px",borderRadius:3,textDecoration:"none",fontWeight:700}}>Shop</a>
+        </div>
       </div>
 
       {/* Content */}
