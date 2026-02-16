@@ -742,9 +742,25 @@ function ChatWidget() {
   const [msgs, setMsgs] = useState([{role:"assistant",content:"Hey there! I'm the Forbidden Bourbon assistant. Ask me anything about our bourbons, where to buy, cocktail ideas, or how to use this app."}]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailAsked, setEmailAsked] = useState(false);
+  const [emailStep, setEmailStep] = useState(null); // null | "ask" | "input" | "done" | "declined"
+  const [emailVal, setEmailVal] = useState("");
   const chatEnd = useRef(null);
+  const msgCount = useRef(0);
 
-  useEffect(() => { chatEnd.current?.scrollIntoView({behavior:"smooth"}); }, [msgs]);
+  useEffect(() => { chatEnd.current?.scrollIntoView({behavior:"smooth"}); }, [msgs, emailStep]);
+
+  const submitEmail = async () => {
+    if (!emailVal || !emailVal.includes("@")) return;
+    try {
+      await fetch("/api/subscribe", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({email: emailVal})
+      });
+    } catch(e) {}
+    setEmailStep("done");
+    setMsgs(prev => [...prev, {role:"assistant", content:"You're all set! Use code nothingisforbidden for 15% off your first order at shop.drinkforbidden.com. Anything else I can help with?"}]);
+  };
 
   const send = async () => {
     if (!input.trim() || loading) return;
@@ -753,6 +769,7 @@ function ChatWidget() {
     setMsgs(newMsgs);
     setInput("");
     setLoading(true);
+    msgCount.current++;
     try {
       const res = await fetch("/api/chat", {
         method:"POST", headers:{"Content-Type":"application/json"},
@@ -760,6 +777,11 @@ function ChatWidget() {
       });
       const data = await res.json();
       setMsgs(prev => [...prev, {role:"assistant", content: data.reply}]);
+      // After 3rd user message, offer email signup
+      if (msgCount.current === 3 && !emailAsked) {
+        setEmailAsked(true);
+        setTimeout(() => setEmailStep("ask"), 1500);
+      }
     } catch(e) {
       setMsgs(prev => [...prev, {role:"assistant", content:"Sorry, something went wrong. Please try again or email info@drinkforbidden.com."}]);
     }
@@ -812,6 +834,25 @@ function ChatWidget() {
         {loading && (
           <div style={{alignSelf:"flex-start",padding:"10px 14px",borderRadius:"14px 14px 14px 4px",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.08)"}}>
             <p style={{...Fb,fontSize:"0.88rem",color:G.mute,margin:0}}>Thinking...</p>
+          </div>
+        )}
+        {emailStep === "ask" && (
+          <div style={{alignSelf:"flex-start",maxWidth:"90%",padding:"14px 16px",borderRadius:"14px",background:"rgba(201,169,110,0.1)",border:"1px solid rgba(201,169,110,0.25)"}}>
+            <p style={{...Fb,fontSize:"0.88rem",color:G.cream,lineHeight:1.5,margin:"0 0 12px"}}>Enjoying the conversation? Get exclusive offers and bourbon updates — plus 15% off your first order!</p>
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={()=>setEmailStep("input")} style={{...Fb,fontSize:"0.82rem",background:G.gold,color:G.bg,border:"none",borderRadius:6,padding:"8px 14px",cursor:"pointer",fontWeight:700}}>Yes please!</button>
+              <button onClick={()=>setEmailStep("declined")} style={{...Fb,fontSize:"0.82rem",background:"none",color:G.mute,border:"1px solid rgba(201,169,110,0.2)",borderRadius:6,padding:"8px 14px",cursor:"pointer"}}>No thanks</button>
+            </div>
+          </div>
+        )}
+        {emailStep === "input" && (
+          <div style={{alignSelf:"flex-start",maxWidth:"90%",padding:"14px 16px",borderRadius:"14px",background:"rgba(201,169,110,0.1)",border:"1px solid rgba(201,169,110,0.25)"}}>
+            <p style={{...Fb,fontSize:"0.88rem",color:G.cream,lineHeight:1.5,margin:"0 0 10px"}}>Drop your email below:</p>
+            <div style={{display:"flex",gap:8}}>
+              <input type="email" value={emailVal} onChange={e=>setEmailVal(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")submitEmail()}}
+                placeholder="your@email.com" style={{...Fb,flex:1,fontSize:"0.85rem",color:G.cream,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(201,169,110,0.2)",borderRadius:6,padding:"8px 12px",outline:"none"}} />
+              <button onClick={submitEmail} style={{...Fb,fontSize:"0.82rem",background:G.gold,color:G.bg,border:"none",borderRadius:6,padding:"8px 14px",cursor:"pointer",fontWeight:700}}>Send</button>
+            </div>
           </div>
         )}
         <div ref={chatEnd} />
