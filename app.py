@@ -5,7 +5,7 @@ import threading
 import time as time_module
 import random
 from datetime import datetime, timedelta
-from flask import (Flask, render_template, request, jsonify, redirect,
+from flask import (Flask, render_template, request, jsonify, redirect, 
                    url_for, flash, send_from_directory)
 from werkzeug.utils import secure_filename
 
@@ -338,13 +338,22 @@ def brand_intel_page():
                          stats=stats,
                          page='brand-intel')
 
+@app.route('/mash-analytics')
+def mash_analytics_page():
+    customer_email_count = db.get_customer_email_count()
+    return render_template('mash_analytics.html',
+                         customer_email_count=customer_email_count,
+                         page='brand-intel')
+
 @app.route('/outreach')
 def outreach_page():
     contacts = db.get_outreach_contacts(limit=500)
     stats = db.get_outreach_stats()
+    customer_email_count = db.get_customer_email_count()
     return render_template('outreach.html',
                          contacts=contacts,
                          stats=stats,
+                         customer_email_count=customer_email_count,
                          page='outreach')
 
 @app.route('/ai-studio')
@@ -2651,6 +2660,27 @@ def api_outreach_toggle_sent(contact_id):
             db.update_outreach_contact(contact_id, status='product_sent')
         return jsonify({'success': True, 'product_sent': new_val})
     return jsonify({'success': False}), 404
+
+
+@app.route('/api/outreach/customer-emails')
+def api_customer_emails():
+    """Get all customer emails for the email list"""
+    emails = db.get_customer_emails()
+    return jsonify({'success': True, 'emails': [dict(e) for e in emails], 'count': len(emails)})
+
+
+@app.route('/api/outreach/customer-emails/export')
+def api_customer_emails_export():
+    """Export customer emails as CSV"""
+    emails = db.get_customer_emails()
+    import io, csv
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Email', 'Orders', 'Total Spend', 'AOV', 'First Order', 'Last Order'])
+    for e in emails:
+        writer.writerow([e['email'], e.get('orders', 1), e.get('total_spend', 0), e.get('aov', 0), e.get('first_order', ''), e.get('last_order', '')])
+    from flask import Response
+    return Response(output.getvalue(), mimetype='text/csv', headers={'Content-Disposition': 'attachment; filename=forbidden_customer_emails.csv'})
 
 
 @app.route('/api/blog/scheduler-status', methods=['GET'])

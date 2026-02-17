@@ -49,8 +49,31 @@
     <button class="filter-tab" onclick="filterContacts('media', this)">📰 Media ({{ stats.media }})</button>
     <button class="filter-tab" onclick="filterContacts('adjacent', this)">🔥 Adjacent ({{ stats.adjacent }})</button>
     <button class="filter-tab" onclick="filterContacts('community', this)">👥 Community ({{ stats.community }})</button>
+    <button class="filter-tab" onclick="switchView('customer-emails', this)" style="background: rgba(74,222,128,0.15); color: #4ade80;">📧 Online Sales Emails ({{ customer_email_count }})</button>
     <button class="filter-tab" onclick="switchView('templates', this)">✉️ Templates</button>
     <button class="filter-tab" onclick="switchView('add', this)">＋ Add</button>
+</div>
+
+<!-- CUSTOMER EMAILS LIST (from Mash Networks) -->
+<div id="customerEmailsView" class="hidden">
+    <div class="card" style="margin-bottom: 16px; padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div>
+                <h3 style="margin: 0; color: var(--gold); font-family: 'Cormorant Garamond', serif;">Online Sales Customer Emails</h3>
+                <p style="margin: 4px 0 0 0; font-size: 0.9rem; color: var(--text-muted);">{{ customer_email_count }} verified customer emails from Mash Networks · drinkforbidden.com orders</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button onclick="copyAllEmails()" class="btn" style="background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); font-size: 0.9rem; padding: 6px 12px;">📋 Copy All</button>
+                <a href="/api/outreach/customer-emails/export" class="btn" style="background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); font-size: 0.9rem; padding: 6px 12px; text-decoration: none;">⬇️ Export CSV</a>
+            </div>
+        </div>
+        <div style="margin-bottom: 12px;">
+            <input type="text" id="emailSearchInput" placeholder="Search emails..." oninput="filterEmails(this.value)" style="width: 100%; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-size: 0.95rem;">
+        </div>
+        <div id="emailListContainer" style="max-height: 500px; overflow-y: auto;">
+            <p style="text-align: center; color: var(--text-muted); padding: 20px;">Loading emails...</p>
+        </div>
+    </div>
 </div>
 
 <!-- CONTACTS LIST -->
@@ -282,6 +305,7 @@ function filterContacts(cat, btn) {
     document.getElementById('contactsList').classList.remove('hidden');
     document.getElementById('templatesView').classList.add('hidden');
     document.getElementById('addView').classList.add('hidden');
+    document.getElementById('customerEmailsView').classList.add('hidden');
     
     document.querySelectorAll('.contact-card').forEach(card => {
         card.style.display = (cat === 'all' || card.dataset.category === cat) ? '' : 'none';
@@ -294,6 +318,45 @@ function switchView(view, btn) {
     document.getElementById('contactsList').classList.add('hidden');
     document.getElementById('templatesView').classList[view === 'templates' ? 'remove' : 'add']('hidden');
     document.getElementById('addView').classList[view === 'add' ? 'remove' : 'add']('hidden');
+    document.getElementById('customerEmailsView').classList[view === 'customer-emails' ? 'remove' : 'add']('hidden');
+    if (view === 'customer-emails' && !window._emailsLoaded) loadCustomerEmails();
+}
+
+let _allEmails = [];
+async function loadCustomerEmails() {
+    const container = document.getElementById('emailListContainer');
+    try {
+        const resp = await fetch('/api/outreach/customer-emails');
+        const data = await resp.json();
+        _allEmails = data.emails || [];
+        window._emailsLoaded = true;
+        renderEmailList(_allEmails);
+    } catch(e) {
+        container.innerHTML = '<p style="color:#f87171;">Error loading emails</p>';
+    }
+}
+
+function renderEmailList(emails) {
+    const container = document.getElementById('emailListContainer');
+    if (!emails.length) { container.innerHTML = '<p style="color:var(--text-muted);text-align:center;">No emails found</p>'; return; }
+    let html = '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;">Showing ' + emails.length + ' of ' + _allEmails.length + ' emails</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:0.9rem;"><thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:6px;color:var(--text-muted);">Email</th><th style="text-align:right;padding:6px;color:var(--text-muted);">Orders</th><th style="text-align:right;padding:6px;color:var(--text-muted);">Spend</th></tr></thead><tbody>';
+    emails.forEach(e => {
+        html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:6px;"><a href="mailto:' + e.email + '" style="color:var(--gold);text-decoration:none;">' + e.email + '</a> <button onclick="copyText(\'' + e.email + '\')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.8rem;">📋</button></td><td style="text-align:right;padding:6px;color:var(--text-secondary);">' + (e.orders||1) + '</td><td style="text-align:right;padding:6px;color:var(--text-secondary);">$' + (e.total_spend||0).toFixed(2) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function filterEmails(query) {
+    if (!query) { renderEmailList(_allEmails); return; }
+    const q = query.toLowerCase();
+    renderEmailList(_allEmails.filter(e => e.email.toLowerCase().includes(q)));
+}
+
+function copyAllEmails() {
+    const all = _allEmails.map(e => e.email).join('\n');
+    navigator.clipboard.writeText(all).then(() => showToast('Copied ' + _allEmails.length + ' emails!', 'success'));
 }
 
 function toggleContact(id) {

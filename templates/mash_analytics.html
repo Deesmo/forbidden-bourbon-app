@@ -1,0 +1,590 @@
+{% extends "base.html" %}
+{% block title %}Mash Networks Analytics{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<div style="position: relative; margin: -16px -16px 16px -16px; height: 80px; overflow: hidden;">
+    <img src="/static/photos/bottle-top.jpg" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.15; filter: blur(2px);">
+    <div style="position: relative; z-index: 1; height: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
+        <div>
+            <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--gold); margin: 0;">📊 Mash Networks Analytics</h1>
+            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 2px 0 0 0;">drinkforbidden.com · E-Commerce Intelligence Dashboard</p>
+        </div>
+        <a href="/brand-intel" style="color: var(--gold); text-decoration: none; font-size: 0.9rem;">← Brand Intel</a>
+    </div>
+</div>
+
+<!-- TAB NAVIGATION -->
+<div class="filter-tabs" style="margin-bottom: 16px; flex-wrap: wrap;">
+    <button class="filter-tab active" onclick="showTab('overview', this)">📈 Overview</button>
+    <button class="filter-tab" onclick="showTab('distiller', this)">💰 Distiller Reports</button>
+    <button class="filter-tab" onclick="showTab('products', this)">🥃 Products</button>
+    <button class="filter-tab" onclick="showTab('customers', this)">👥 Customers</button>
+    <button class="filter-tab" onclick="showTab('demographics', this)">📋 Demographics</button>
+    <button class="filter-tab" onclick="showTab('geography', this)">🗺️ Geography</button>
+    <button class="filter-tab" onclick="showTab('traffic', this)">🌐 Traffic</button>
+</div>
+
+<!-- ===== OVERVIEW TAB ===== -->
+<div id="tab-overview" class="tab-content">
+    <!-- Mash Networks Snapshot -->
+    <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <h3 style="color: var(--gold); font-family: 'Cormorant Garamond', serif; margin: 0 0 4px 0;">Mash Networks Portal Snapshot</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 16px 0;">portal.mashnetworks.org · Data since Jun 01, 2024</p>
+        
+        <!-- Sales Stats -->
+        <div class="stat-grid" style="margin-bottom: 16px;">
+            <div class="stat-card accent">
+                <div class="stat-value">$146,603</div>
+                <div class="stat-label">Gross MSRP Sales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">755</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">1,026</div>
+                <div class="stat-label">Bottles Sold</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">633</div>
+                <div class="stat-label">Total Customers</div>
+            </div>
+        </div>
+
+        <!-- Store Stats -->
+        <div class="stat-grid" style="margin-bottom: 16px;">
+            <div class="stat-card">
+                <div class="stat-value">$194.18</div>
+                <div class="stat-label">Avg Order Value</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">6.99%</div>
+                <div class="stat-label">Conversion Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">$142.89</div>
+                <div class="stat-label">Avg Bottle Price</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">$259.50</div>
+                <div class="stat-label">Customer LTV</div>
+            </div>
+        </div>
+
+        <!-- Sales Funnel -->
+        <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);">
+            <h4 style="color: var(--text-secondary); margin: 0 0 10px 0; font-size: 0.95rem;">Sales Funnel</h4>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div style="text-align: center; flex: 1; min-width: 80px;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--gold);">10,796</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Visitors</div>
+                </div>
+                <span style="color: var(--text-muted);">→</span>
+                <div style="text-align: center; flex: 1; min-width: 80px;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #f59e0b;">1,651</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Carts</div>
+                </div>
+                <span style="color: var(--text-muted);">→</span>
+                <div style="text-align: center; flex: 1; min-width: 80px;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #f97316;">1,378</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Checkouts</div>
+                </div>
+                <span style="color: var(--text-muted);">→</span>
+                <div style="text-align: center; flex: 1; min-width: 80px;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #4ade80;">755</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Orders</div>
+                </div>
+            </div>
+            <div style="margin-top: 8px; font-size: 0.8rem; color: var(--text-muted);">
+                Revenue per visitor: <strong style="color: var(--gold);">$13.58</strong> · Avg checkout time: <strong style="color: var(--gold);">3.31 min</strong> · Retention: <strong style="color: var(--gold);">12.32%</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distiller Quick Summary -->
+    <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <h3 style="color: var(--gold); font-family: 'Cormorant Garamond', serif; margin: 0 0 4px 0;">Distiller Payout Summary</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 16px 0;">Mar 2025 – Jan 2026 (11 months)</p>
+        <div class="stat-grid">
+            <div class="stat-card accent">
+                <div class="stat-value">$55,448</div>
+                <div class="stat-label">Total MSRP</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">385</div>
+                <div class="stat-label">Bottles Sold</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">$36,041</div>
+                <div class="stat-label">Brand Gross (65%)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: #4ade80;">$30,262</div>
+                <div class="stat-label">Brand Net Payout</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== DISTILLER REPORTS TAB ===== -->
+<div id="tab-distiller" class="tab-content hidden">
+    <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <h3 style="color: var(--gold); font-family: 'Cormorant Garamond', serif; margin: 0 0 12px 0;">Monthly Distiller Reports</h3>
+        
+        <!-- Chart -->
+        <div style="margin-bottom: 16px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);">
+            <canvas id="distillerChart" height="200"></canvas>
+        </div>
+
+        <!-- Table -->
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border);">
+                        <th style="text-align: left; padding: 8px; color: var(--text-muted);">Month</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Bottles</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">MSRP</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Gross (65%)</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Expenses</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Net Payout</th>
+                    </tr>
+                </thead>
+                <tbody id="distillerTableBody"></tbody>
+                <tfoot>
+                    <tr style="border-top: 2px solid var(--gold);">
+                        <td style="padding: 8px; font-weight: 700; color: var(--gold);">TOTAL</td>
+                        <td style="text-align: right; padding: 8px; font-weight: 700; color: var(--gold);">385</td>
+                        <td style="text-align: right; padding: 8px; font-weight: 700; color: var(--gold);">$55,447.70</td>
+                        <td style="text-align: right; padding: 8px; font-weight: 700; color: var(--gold);">$36,040.96</td>
+                        <td style="text-align: right; padding: 8px; font-weight: 700; color: #f87171;">$5,479.01</td>
+                        <td style="text-align: right; padding: 8px; font-weight: 700; color: #4ade80;">$30,261.95</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PRODUCTS TAB ===== -->
+<div id="tab-products" class="tab-content hidden">
+    <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <h3 style="color: var(--gold); font-family: 'Cormorant Garamond', serif; margin: 0 0 4px 0;">Product Catalog</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 16px 0;">4 active products on drinkforbidden.com</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+            <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border); text-align: center;">
+                <div style="font-size: 1.4rem;">🥃</div>
+                <div style="font-weight: 600; color: var(--text-primary); margin: 4px 0;">Wheated Batch 1</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem;">Balanced and Complex</div>
+                <div style="color: var(--gold); font-weight: 700; margin-top: 4px;">$139.99</div>
+            </div>
+            <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border); text-align: center;">
+                <div style="font-size: 1.4rem;">🥃</div>
+                <div style="font-weight: 600; color: var(--text-primary); margin: 4px 0;">Wheated Batch 2</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem;">Smoother, Yet Still Complex</div>
+                <div style="color: var(--gold); font-weight: 700; margin-top: 4px;">$139.99</div>
+            </div>
+            <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border); text-align: center;">
+                <div style="font-size: 1.4rem;">🥃</div>
+                <div style="font-weight: 600; color: var(--text-primary); margin: 4px 0;">Wheated Batch 3</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem;">Complex Yet Approachable</div>
+                <div style="color: var(--gold); font-weight: 700; margin-top: 4px;">$139.99</div>
+            </div>
+            <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border); text-align: center;">
+                <div style="font-size: 1.4rem;">⭐</div>
+                <div style="font-weight: 600; color: var(--text-primary); margin: 4px 0;">Single Barrel</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem;">Every Bottle is Unique</div>
+                <div style="color: var(--gold); font-weight: 700; margin-top: 4px;">$150.00</div>
+            </div>
+        </div>
+
+        <!-- Products Funnel (from Mash) -->
+        <h4 style="color: var(--text-secondary); margin: 0 0 10px 0;">Product Performance (Mash Networks)</h4>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border);">
+                        <th style="text-align: left; padding: 8px; color: var(--text-muted);">Product</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Views</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Carts</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Checkouts</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Bottles</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Orders</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 8px; font-weight: 600;">Wheated Batch 2</td>
+                        <td style="text-align: right; padding: 8px;">1,616</td>
+                        <td style="text-align: right; padding: 8px;">484</td>
+                        <td style="text-align: right; padding: 8px;">535</td>
+                        <td style="text-align: right; padding: 8px;">331</td>
+                        <td style="text-align: right; padding: 8px;">268</td>
+                        <td style="text-align: right; padding: 8px; color: var(--gold); font-weight: 600;">$48,024.79</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 8px; font-weight: 600;">Single Barrel</td>
+                        <td style="text-align: right; padding: 8px;">3,634</td>
+                        <td style="text-align: right; padding: 8px;">546</td>
+                        <td style="text-align: right; padding: 8px;">584</td>
+                        <td style="text-align: right; padding: 8px;">303</td>
+                        <td style="text-align: right; padding: 8px;">255</td>
+                        <td style="text-align: right; padding: 8px; color: var(--gold); font-weight: 600;">$47,086.20</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 8px; font-weight: 600;">Wheated Batch 1</td>
+                        <td style="text-align: right; padding: 8px;">2,988</td>
+                        <td style="text-align: right; padding: 8px;">433</td>
+                        <td style="text-align: right; padding: 8px;">452</td>
+                        <td style="text-align: right; padding: 8px;">241</td>
+                        <td style="text-align: right; padding: 8px;">197</td>
+                        <td style="text-align: right; padding: 8px; color: var(--gold); font-weight: 600;">$34,966.69</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 8px; font-weight: 600;">Wheated Batch 3</td>
+                        <td style="text-align: right; padding: 8px;">3,036</td>
+                        <td style="text-align: right; padding: 8px;">295</td>
+                        <td style="text-align: right; padding: 8px;">340</td>
+                        <td style="text-align: right; padding: 8px;">180</td>
+                        <td style="text-align: right; padding: 8px;">155</td>
+                        <td style="text-align: right; padding: 8px; color: var(--gold); font-weight: 600;">$26,116.20</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Baskets -->
+        <h4 style="color: var(--text-secondary); margin: 20px 0 10px 0;">Product Bundle Frequency</h4>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px;">
+            <div style="text-align: center; padding: 10px; background: rgba(139,92,57,0.15); border-radius: 8px;">
+                <div style="font-size: 1.3rem; font-weight: 700; color: var(--gold);">51</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Batch 3</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: rgba(139,92,57,0.12); border-radius: 8px;">
+                <div style="font-size: 1.3rem; font-weight: 700; color: var(--gold);">48</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Batch 2</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: rgba(139,92,57,0.10); border-radius: 8px;">
+                <div style="font-size: 1.3rem; font-weight: 700; color: var(--gold);">47</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Batch 1</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: rgba(139,92,57,0.08); border-radius: 8px;">
+                <div style="font-size: 1.3rem; font-weight: 700; color: var(--gold);">46</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Single Barrel</div>
+            </div>
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+            <strong>Top pairings:</strong> Batch 1 + Batch 3 (28), Batch 1 + Batch 2 (22), Batch 3 + Single Barrel (21), Batch 2 + Single Barrel (19), Batch 2 + Batch 3 (19), Batch 1 + Single Barrel (14)
+        </div>
+    </div>
+</div>
+
+<!-- ===== CUSTOMERS TAB ===== -->
+<div id="tab-customers" class="tab-content hidden">
+    <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+                <h3 style="color: var(--gold); font-family: 'Cormorant Garamond', serif; margin: 0;">Customer Database</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">{{ customer_email_count }} verified customer emails from Mash Networks orders</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="/outreach" class="btn" style="background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); font-size: 0.9rem; padding: 6px 12px; text-decoration: none;">📧 View in Outreach</a>
+                <a href="/api/outreach/customer-emails/export" class="btn" style="background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); font-size: 0.9rem; padding: 6px 12px; text-decoration: none;">⬇️ Export CSV</a>
+            </div>
+        </div>
+        <div class="stat-grid">
+            <div class="stat-card accent">
+                <div class="stat-value">633</div>
+                <div class="stat-label">Total Customers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">12.32%</div>
+                <div class="stat-label">Retention Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">$259.50</div>
+                <div class="stat-label">Customer LTV</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ customer_email_count }}</div>
+                <div class="stat-label">Emails Captured</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Audience -->
+    <div class="card" style="padding: 16px;">
+        <h4 style="color: var(--text-secondary); margin: 0 0 8px 0;">Mash Networks Custom Audience Builder</h4>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 8px 0;">Available filters: Age Range, Education, Gender, Home Market Value, Home Owner Status, Household Income, Length of Residence, Marital Status, Net Worth, Occupation, Presence of Children</p>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Current audience size (Jan 18 – Feb 17, 2026): <strong style="color: var(--gold);">14 active customers</strong></p>
+    </div>
+</div>
+
+<!-- ===== DEMOGRAPHICS TAB ===== -->
+<div id="tab-demographics" class="tab-content hidden">
+    <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <h3 style="color: var(--gold); font-family: 'Cormorant Garamond', serif; margin: 0 0 16px 0;">Customer Demographics</h3>
+        
+        <!-- Demographics Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            
+            <!-- Occupation -->
+            <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);">
+                <h4 style="color: var(--text-secondary); margin: 0 0 10px 0;">Occupation</h4>
+                <div id="occupationBars"></div>
+            </div>
+
+            <!-- Household Income -->
+            <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);">
+                <h4 style="color: var(--text-secondary); margin: 0 0 10px 0;">Household Income</h4>
+                <div id="incomeBars"></div>
+            </div>
+
+            <!-- Home Market Value -->
+            <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);">
+                <h4 style="color: var(--text-secondary); margin: 0 0 10px 0;">Home Market Value</h4>
+                <div id="homeValueBars"></div>
+            </div>
+
+            <!-- Home Ownership + Residence -->
+            <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);">
+                <h4 style="color: var(--text-secondary); margin: 0 0 10px 0;">Length of Residence</h4>
+                <div id="residenceBars"></div>
+            </div>
+        </div>
+
+        <!-- Quick Facts -->
+        <div style="margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);">
+            <h4 style="color: var(--text-secondary); margin: 0 0 8px 0;">Key Demographic Insights</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; font-size: 0.9rem;">
+                <div><span style="color: var(--text-muted);">Gender:</span> <span style="color: var(--text-primary);">Majority Male (pie chart heavy)</span></div>
+                <div><span style="color: var(--text-muted);">Age Range:</span> <span style="color: var(--text-primary);">Skews 45-64 (largest segments)</span></div>
+                <div><span style="color: var(--text-muted);">Marital Status:</span> <span style="color: var(--text-primary);">Primarily Married</span></div>
+                <div><span style="color: var(--text-muted);">Education:</span> <span style="color: var(--text-primary);">College + Graduate School majority</span></div>
+                <div><span style="color: var(--text-muted);">Home Ownership:</span> <span style="color: var(--text-primary);">Predominantly Homeowners</span></div>
+                <div><span style="color: var(--text-muted);">Children:</span> <span style="color: var(--text-primary);">Mixed (pie split between Yes/No/Unknown)</span></div>
+                <div><span style="color: var(--text-muted);">Top Occupation:</span> <span style="color: var(--text-primary);">Professional (132), White Collar (100)</span></div>
+                <div><span style="color: var(--text-muted);">Top Income:</span> <span style="color: var(--text-primary);">$100k-150k (96), $50k-75k (82)</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== GEOGRAPHY TAB ===== -->
+<div id="tab-geography" class="tab-content hidden">
+    <div class="card" style="padding: 16px;">
+        <h3 style="color: var(--gold); font-family: 'Cormorant Garamond', serif; margin: 0 0 16px 0;">Top Markets by City</h3>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border);">
+                        <th style="text-align: left; padding: 8px; color: var(--text-muted);">City</th>
+                        <th style="text-align: left; padding: 8px; color: var(--text-muted);">State</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Customers</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Total Sales</th>
+                    </tr>
+                </thead>
+                <tbody id="geoTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TRAFFIC TAB ===== -->
+<div id="tab-traffic" class="tab-content hidden">
+    <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <h3 style="color: var(--gold); font-family: 'Cormorant Garamond', serif; margin: 0 0 4px 0;">Onsite Traffic</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 16px 0;">Unique Visitors: <strong style="color: var(--gold);">10,796</strong></p>
+
+        <h4 style="color: var(--text-secondary); margin: 0 0 10px 0;">Top Traffic Sources</h4>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border);">
+                        <th style="text-align: left; padding: 8px; color: var(--text-muted);">Source</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Hits</th>
+                        <th style="text-align: right; padding: 8px; color: var(--text-muted);">Share</th>
+                    </tr>
+                </thead>
+                <tbody id="trafficTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// Tab switching
+function showTab(tab, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.remove('hidden');
+    btn.classList.add('active');
+}
+
+// Distiller data
+const distillerData = [
+    { month: 'Mar 2025', bottles: 21, msrp: 3049.90, gross: 1982.43, expenses: 0, net: 1982.43 },
+    { month: 'Apr 2025', bottles: 26, msrp: 3749.85, gross: 2437.40, expenses: 145.09, net: 2292.31 },
+    { month: 'May 2025', bottles: 23, msrp: 3369.92, gross: 2190.44, expenses: 259.12, net: 1931.32 },
+    { month: 'Jun 2025', bottles: 20, msrp: 2879.88, gross: 1871.92, expenses: 299.85, net: 1572.07 },
+    { month: 'Jul 2025', bottles: 21, msrp: 2989.84, gross: 1943.39, expenses: 199.90, net: 1743.49 },
+    { month: 'Aug 2025', bottles: 21, msrp: 3059.91, gross: 1988.94, expenses: 366.39, net: 1622.55 },
+    { month: 'Sep 2025', bottles: 23, msrp: 3249.80, gross: 2112.37, expenses: 279.86, net: 1832.51 },
+    { month: 'Oct 2025', bottles: 24, msrp: 3409.81, gross: 2216.37, expenses: 299.85, net: 1916.52 },
+    { month: 'Nov 2025', bottles: 98, msrp: 14089.39, gross: 9158.10, expenses: 2018.67, net: 7139.43 },
+    { month: 'Dec 2025', bottles: 91, msrp: 13129.48, gross: 8534.16, expenses: 1539.24, net: 6994.92 },
+    { month: 'Jan 2026', bottles: 17, msrp: 2469.92, gross: 1605.44, expenses: 371.04, net: 1234.40 }
+];
+
+// Render distiller table
+const dtb = document.getElementById('distillerTableBody');
+distillerData.forEach(d => {
+    const isHoliday = d.bottles > 50;
+    dtb.innerHTML += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);${isHoliday ? ' background: rgba(74,222,128,0.05);' : ''}">
+        <td style="padding: 8px; font-weight: ${isHoliday ? '700' : '400'};">${d.month}</td>
+        <td style="text-align: right; padding: 8px;">${d.bottles}</td>
+        <td style="text-align: right; padding: 8px;">$${d.msrp.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+        <td style="text-align: right; padding: 8px;">$${d.gross.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+        <td style="text-align: right; padding: 8px; color: #f87171;">$${d.expenses.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+        <td style="text-align: right; padding: 8px; color: #4ade80; font-weight: 600;">$${d.net.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+    </tr>`;
+});
+
+// Bar chart helper
+function renderBars(containerId, data, maxVal) {
+    const c = document.getElementById(containerId);
+    if (!c) return;
+    c.innerHTML = data.map(d => {
+        const pct = (d.val / maxVal) * 100;
+        return `<div style="display: flex; align-items: center; margin-bottom: 4px;">
+            <div style="width: 100px; font-size: 0.8rem; color: var(--text-muted); flex-shrink: 0;">${d.label}</div>
+            <div style="flex: 1; height: 18px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; margin-right: 8px;">
+                <div style="height: 100%; width: ${pct}%; background: linear-gradient(90deg, #8b5c39, var(--gold)); border-radius: 3px;"></div>
+            </div>
+            <div style="width: 35px; text-align: right; font-size: 0.8rem; color: var(--text-secondary);">${d.val}</div>
+        </div>`;
+    }).join('');
+}
+
+// Demographics bars
+renderBars('occupationBars', [
+    {label: 'Professional', val: 132}, {label: 'White Collar', val: 100},
+    {label: 'Manager', val: 47}, {label: 'Blue Collar', val: 40},
+    {label: 'Healthcare', val: 35}, {label: 'Other', val: 7}
+], 132);
+
+renderBars('incomeBars', [
+    {label: '$100k-150k', val: 96}, {label: '$50k-75k', val: 82},
+    {label: '$75k-100k', val: 60}, {label: '$250k+', val: 56},
+    {label: '$35k-50k', val: 51}, {label: '$200k-250k', val: 35},
+    {label: '$15k-25k', val: 23}, {label: '$175k-200k', val: 18},
+    {label: '$150k-175k', val: 14}, {label: '$25k-35k', val: 10}
+], 96);
+
+renderBars('homeValueBars', [
+    {label: '$500k-1mm', val: 118}, {label: '$350k-500k', val: 107},
+    {label: '$1mm+', val: 51}, {label: '$250k-300k', val: 47},
+    {label: '$150k-200k', val: 39}, {label: '$300k-350k', val: 29},
+    {label: '$200k-250k', val: 28}, {label: '$100k-150k', val: 20}
+], 118);
+
+renderBars('residenceBars', [
+    {label: '16-19 years', val: 132}, {label: '20+ years', val: 102},
+    {label: '11-15 years', val: 36}, {label: '<1 year', val: 32},
+    {label: '5 years', val: 25}, {label: '1 year', val: 24},
+    {label: '10 years', val: 20}, {label: '4 years', val: 19},
+    {label: '2 years', val: 17}, {label: '3 years', val: 15}
+], 132);
+
+// Geography data
+const geoData = [
+    {city:'Naples',state:'FL',customers:4,sales:'$2,309.91'},{city:'Greenville',state:'SC',customers:2,sales:'$2,119.87'},
+    {city:'Houston',state:'TX',customers:11,sales:'$1,999.90'},{city:'Jonesborough',state:'TN',customers:1,sales:'$1,959.86'},
+    {city:'San Antonio',state:'TX',customers:8,sales:'$1,689.89'},{city:'Tampa',state:'FL',customers:3,sales:'$1,679.88'},
+    {city:'Saint Marys',state:'OH',customers:2,sales:'$1,569.92'},{city:'New York',state:'NY',customers:6,sales:'$1,469.97'},
+    {city:'Lexington',state:'KY',customers:4,sales:'$1,429.93'},{city:'Scottsdale',state:'AZ',customers:2,sales:'$1,409.91'},
+    {city:'Portland',state:'TN',customers:1,sales:'$1,319.97'},{city:'Hartford',state:'WI',customers:1,sales:'$1,279.93'},
+    {city:'Mobile',state:'AL',customers:3,sales:'$1,129.83'},{city:'Mt. Pleasant',state:'SC',customers:1,sales:'$979.93'},
+    {city:'Cincinnati',state:'OH',customers:3,sales:'$979.93'},{city:'Chicago',state:'IL',customers:6,sales:'$979.93'},
+    {city:'Flushing',state:'NY',customers:1,sales:'$900.00'},{city:'Boys Town',state:'NE',customers:1,sales:'$900.00'},
+    {city:'Atlanta',state:'GA',customers:4,sales:'$869.97'},{city:'Johnson City',state:'TN',customers:1,sales:'$859.96'},
+    {city:'Swansboro',state:'NC',customers:1,sales:'$859.96'},{city:'Fort Worth',state:'TX',customers:4,sales:'$859.96'},
+    {city:'Nashville',state:'TN',customers:4,sales:'$849.95'},{city:'San Diego',state:'CA',customers:4,sales:'$839.94'},
+    {city:'Charlotte',state:'NC',customers:5,sales:'$719.97'},{city:'Westport',state:'CT',customers:2,sales:'$709.96'},
+    {city:'Hilton Head Island',state:'SC',customers:2,sales:'$699.95'},{city:'Columbia',state:'SC',customers:1,sales:'$600.00'},
+    {city:'Tacoma',state:'WA',customers:3,sales:'$600.00'},{city:'Manassas',state:'VA',customers:1,sales:'$589.99'}
+];
+
+const gtb = document.getElementById('geoTableBody');
+geoData.forEach(g => {
+    gtb.innerHTML += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="padding: 8px;">${g.city}</td>
+        <td style="padding: 8px; color: var(--text-muted);">${g.state}</td>
+        <td style="text-align: right; padding: 8px;">${g.customers}</td>
+        <td style="text-align: right; padding: 8px; color: var(--gold); font-weight: 600;">${g.sales}</td>
+    </tr>`;
+});
+
+// Traffic data
+const trafficData = [
+    {source:'Direct', hits:15320},{source:'drinkforbidden.com', hits:9651},
+    {source:'google.com', hits:431},{source:'Android App (Google)', hits:236},
+    {source:'m.facebook.com', hits:133},{source:'l.instagram.com', hits:91},
+    {source:'google.com (www)', hits:49},{source:'lm.facebook.com', hits:31},
+    {source:'duckduckgo.com', hits:25},{source:'m.facebook.com (http)', hits:20},
+    {source:'bing.com (www)', hits:13},{source:'facebook.com (www)', hits:12},
+    {source:'drinkforbidden.com (https)', hits:12},{source:'instagram.com', hits:10},
+    {source:'outlook.live.com', hits:10},{source:'forbidden-bourbon.webflow.io', hits:8},
+    {source:'bing.com', hits:8},{source:'f.facebook.com', hits:8},
+    {source:'excel.officeapps.live.com', hits:8},{source:'search.yahoo.com', hits:6},
+    {source:'klaviyo.com', hits:6}
+];
+
+const totalHits = trafficData.reduce((s, t) => s + t.hits, 0);
+const ttb = document.getElementById('trafficTableBody');
+trafficData.forEach(t => {
+    const pct = ((t.hits / totalHits) * 100).toFixed(1);
+    ttb.innerHTML += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="padding: 8px; font-size: 0.85rem;">${t.source}</td>
+        <td style="text-align: right; padding: 8px; font-weight: 600;">${t.hits.toLocaleString()}</td>
+        <td style="text-align: right; padding: 8px; color: var(--text-muted);">${pct}%</td>
+    </tr>`;
+});
+
+// Chart.js for distiller report
+const chartScript = document.createElement('script');
+chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+chartScript.onload = () => {
+    new Chart(document.getElementById('distillerChart'), {
+        type: 'bar',
+        data: {
+            labels: distillerData.map(d => d.month),
+            datasets: [{
+                label: 'Net Payout',
+                data: distillerData.map(d => d.net),
+                backgroundColor: 'rgba(139, 92, 57, 0.6)',
+                borderColor: '#c8a97e',
+                borderWidth: 1
+            }, {
+                label: 'Expenses',
+                data: distillerData.map(d => d.expenses),
+                backgroundColor: 'rgba(248, 113, 113, 0.4)',
+                borderColor: '#f87171',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#999', callback: v => '$' + (v/1000).toFixed(0) + 'k' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: { legend: { labels: { color: '#ccc' } } }
+        }
+    });
+};
+document.head.appendChild(chartScript);
+</script>
+{% endblock %}

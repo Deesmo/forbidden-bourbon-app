@@ -5,5 +5,3 @@ __pycache__/
 static/uploads/*
 !static/uploads/.gitkeep
 venv/
-.DS_Store
-emails.db
