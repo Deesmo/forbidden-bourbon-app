@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+{% block title %}Photos{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Brand Photos</h1>
+    <p class="subtitle">Tap any photo to copy its URL for social posts</p>
+</div>
+
+<!-- FILTER TABS -->
+<div class="filter-tabs">
+    <button class="filter-tab active" onclick="filterPhotos('all', this)">All</button>
+    <button class="filter-tab" onclick="filterPhotos('bottles', this)">Bottles</button>
+    <button class="filter-tab" onclick="filterPhotos('marianne', this)">Marianne</button>
+    <button class="filter-tab" onclick="filterPhotos('lifestyle', this)">Lifestyle</button>
+    <button class="filter-tab" onclick="filterPhotos('ingredients', this)">Ingredients</button>
+    <button class="filter-tab" onclick="filterPhotos('awards', this)">Awards</button>
+    <button class="filter-tab" onclick="filterPhotos('logos', this)">Logos</button>
+    <button class="filter-tab" onclick="filterPhotos('cocktails', this)">Cocktails</button>
+    <button class="filter-tab" onclick="filterPhotos('brand', this)">Brand</button>
+</div>
+
+<!-- PHOTO GRID -->
+<div class="photo-grid" id="photoGrid">
+
+    <!-- BOTTLES -->
+    <div class="photo-card" data-category="bottles" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/6499a35eececddbc57190649/66343a609f3e535af4191fab_Small%20Batch%20Select.webp" alt="Small Batch Select Bottle" loading="lazy">
+        <div class="photo-label">Small Batch Select</div>
+    </div>
+    <div class="photo-card" data-category="bottles" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/6499a35eececddbc57190649/66343a67e9d0576bd06b13de_Small%20Batch%20Select%20-%20Alt.webp" alt="Small Batch Select - Alt Angle" loading="lazy">
+        <div class="photo-label">Small Batch — Alt</div>
+    </div>
+    <div class="photo-card" data-category="bottles" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/6499a35eececddbc57190649/66343acc2ac98893e781d222_single-barrel__dark.webp" alt="Single Barrel - Dark" loading="lazy">
+        <div class="photo-label">Single Barrel — Dark</div>
+    </div>
+    <div class="photo-card" data-category="bottles" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/6499a35eececddbc57190649/66343ad3b110f1dfa5bc07a6_single-barrel__light.webp" alt="Single Barrel - Light" loading="lazy">
+        <div class="photo-label">Single Barrel — Light</div>
+    </div>
+    <div class="photo-card" data-category="bottles" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/647f6d96b15cb4f1d23988c1_product-small_batch.png" alt="Small Batch Product Shot" loading="lazy">
+        <div class="photo-label">Small Batch — Product</div>
+    </div>
+    <div class="photo-card" data-category="bottles" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64a8510e6b7c43f671ad0d87_single_barrel-top.webp" alt="Single Barrel Top View" loading="lazy">
+        <div class="photo-label">Single Barrel — Top</div>
+    </div>
+    <div class="photo-card" data-category="bottles" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64f11d0a485a69a200975ac2_forbidden_bourbon_top.png" alt="Forbidden Bottle Top" loading="lazy">
+        <div class="photo-label">Bottle Top Detail</div>
+    </div>
+    <div class="photo-card" data-category="bottles" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/6500ff6c3a2d18aabd23dd47_glass_of_bourbon.webp" alt="Glass of Bourbon" loading="lazy">
+        <div class="photo-label">Glass of Bourbon</div>
+    </div>
+
+    <!-- MARIANNE EAVES -->
+    <div class="photo-card" data-category="marianne" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64a8519a735357144db8f493_marianne--lounge-1.webp" alt="Marianne Eaves Lounging" loading="lazy">
+        <div class="photo-label">Marianne — Lounge</div>
+    </div>
+    <div class="photo-card" data-category="marianne" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64f0c9ddca035444cdf28d70_marianne_eaves_with_bourbon_glass.webp" alt="Marianne Eaves with Glass" loading="lazy">
+        <div class="photo-label">Marianne — Portrait</div>
+    </div>
+    <div class="photo-card" data-category="marianne" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64a8510e6dfc2c3cb2d11e1c_marianne-at_table.webp" alt="Marianne Eaves at Table" loading="lazy">
+        <div class="photo-label">Marianne — At Table</div>
+    </div>
+    <div class="photo-card" data-category="marianne" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64f0bb77b66173a6a9af102d_marianne_eaves_lounging_alt.webp" alt="Marianne Eaves Lounging Alt" loading="lazy">
+        <div class="photo-label">Marianne — Lounging Alt</div>
+    </div>
+    <div class="photo-card" data-category="marianne" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/661d80ff8c3d47ac537de36e_marianne-sig.webp" alt="Marianne Eaves Signature" loading="lazy">
+        <div class="photo-label">Marianne — Signature</div>
+    </div>
+
+    <!-- LIFESTYLE / HERO IMAGES -->
+    <div class="photo-card" data-category="lifestyle" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/6499a35eececddbc57190649/66343a51172bb59ef6e2c3ad_hero_bg-small_batch.webp" alt="Small Batch Hero Background" loading="lazy">
+        <div class="photo-label">Small Batch — Hero BG</div>
+    </div>
+    <div class="photo-card" data-category="lifestyle" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/6499a35eececddbc57190649/66343ac4cc01790fc7b1027e_bg-single-barrel.webp" alt="Single Barrel Background" loading="lazy">
+        <div class="photo-label">Single Barrel — Hero BG</div>
+    </div>
+
+    <!-- INGREDIENTS -->
+    <div class="photo-card" data-category="ingredients" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64a8510e9ddd393cd6396b80_ingredients-1.webp" alt="Ingredients Scene" loading="lazy">
+        <div class="photo-label">Ingredients Scene</div>
+    </div>
+    <div class="photo-card" data-category="ingredients" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/6515864591776c660f4611ce_barley-png.webp" alt="Malted Barley" loading="lazy">
+        <div class="photo-label">Malted Barley</div>
+    </div>
+    <div class="photo-card" data-category="ingredients" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/65158664d511dfe81f1519cc_Corn.webp" alt="White Corn" loading="lazy">
+        <div class="photo-label">White Corn</div>
+    </div>
+    <div class="photo-card" data-category="ingredients" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/65158655b73fb9aa78ec704b_Rye.webp" alt="White Wheat" loading="lazy">
+        <div class="photo-label">White Wheat</div>
+    </div>
+
+    <!-- AWARDS -->
+    <div class="photo-card" data-category="awards" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/6499a35eececddbc57190649/68123916b15236374e34c8ba_laurel-sf.png" alt="San Francisco Award" loading="lazy">
+        <div class="photo-label">SF Spirits Award</div>
+    </div>
+    <div class="photo-card" data-category="awards" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/6499a35eececddbc57190649/681238e485970392732b0461_laurel-ny.png" alt="New York Award" loading="lazy">
+        <div class="photo-label">NY Spirits Award</div>
+    </div>
+    <div class="photo-card" data-category="awards" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/6499a35eececddbc57190649/68123aea891636a3e3c2b805_laurel-la.png" alt="Los Angeles Award" loading="lazy">
+        <div class="photo-label">LA Spirits Award</div>
+    </div>
+    <div class="photo-card" data-category="awards" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/6499a35eececddbc57190649/6812387068f6aff998f69818_laurel-denver.png" alt="Denver Award" loading="lazy">
+        <div class="photo-label">Denver Spirits Award</div>
+    </div>
+    <div class="photo-card" data-category="awards" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/6499a35eececddbc57190649/681238846e25019251e39f4a_laurel-ascot.png" alt="Ascot Award" loading="lazy">
+        <div class="photo-label">Ascot Spirits Award</div>
+    </div>
+
+    <!-- LOGOS -->
+    <div class="photo-card" data-category="logos" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/64814befceaac1f82252cc31_logo-forbidden.svg" alt="Forbidden Logo" loading="lazy" style="background: #fff; padding: 20px; border-radius: 8px;">
+        <div class="photo-label">Logo — Primary</div>
+    </div>
+    <div class="photo-card" data-category="logos" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/647d5606252da9f4beff664f_logo-header.svg" alt="Forbidden Logo Alt" loading="lazy" style="background: #fff; padding: 20px; border-radius: 8px;">
+        <div class="photo-label">Logo — Header</div>
+    </div>
+    <div class="photo-card" data-category="logos" onclick="photoAction(this)">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/647d4939b2a2a4d5c63c7e21_signature.png" alt="Marianne Signature" loading="lazy" style="background: #fff; padding: 20px; border-radius: 8px;">
+        <div class="photo-label">Marianne — Signature</div>
+    </div>
+
+    <!-- COCKTAILS (Holiday) -->
+    <div class="photo-card" data-category="cocktails" onclick="photoAction(this)">
+        <img src="/static/photos/xmas-whiskey-sour-1.jpg" alt="Christmas Whiskey Sour 1" loading="lazy">
+        <div class="photo-label">Holiday Whiskey Sour 1</div>
+    </div>
+    <div class="photo-card" data-category="cocktails" onclick="photoAction(this)">
+        <img src="/static/photos/xmas-whiskey-sour-2.jpg" alt="Christmas Whiskey Sour 2" loading="lazy">
+        <div class="photo-label">Holiday Whiskey Sour 2</div>
+    </div>
+    <div class="photo-card" data-category="cocktails" onclick="photoAction(this)">
+        <img src="/static/photos/xmas-whiskey-sour-3.jpg" alt="Christmas Whiskey Sour 3" loading="lazy">
+        <div class="photo-label">Holiday Whiskey Sour 3</div>
+    </div>
+    <div class="photo-card" data-category="cocktails" onclick="photoAction(this)">
+        <img src="/static/photos/xmas-whiskey-sour-4.jpg" alt="Christmas Whiskey Sour 4" loading="lazy">
+        <div class="photo-label">Holiday Whiskey Sour 4</div>
+    </div>
+    <div class="photo-card" data-category="cocktails" onclick="photoAction(this)">
+        <img src="/static/photos/xmas-whiskey-sour-5.jpg" alt="Christmas Whiskey Sour 5" loading="lazy">
+        <div class="photo-label">Holiday Whiskey Sour 5</div>
+    </div>
+
+    <!-- BRAND -->
+    <div class="photo-card" data-category="brand" onclick="photoAction(this)">
+        <img src="/static/photos/bottle-top.jpg" alt="Forbidden Bottle Top Star" loading="lazy">
+        <div class="photo-label">Bottle Top — Star Detail</div>
+    </div>
+    <div class="photo-card" data-category="brand" onclick="photoAction(this)">
+        <img src="/static/photos/mash-networks-banner.jpg" alt="Forbidden on Mash Networks" loading="lazy">
+        <div class="photo-label">Mash Networks Banner</div>
+    </div>
+    <div class="photo-card" data-category="brand" onclick="photoAction(this)">
+        <img src="/static/photos/qr-code.png" alt="Forbidden QR Code" loading="lazy" style="background: #fff; padding: 12px; border-radius: 8px;">
+        <div class="photo-label">QR Code</div>
+    </div>
+
+</div>
+
+<!-- PHOTO LIGHTBOX -->
+<div class="modal-overlay" id="photoLightbox" onclick="closeLightbox(event)">
+    <div class="modal-content" style="max-width: 90vw; max-height: 90vh; padding: 12px; background: var(--bg-primary); border-radius: var(--radius-lg);">
+        <img id="lightboxImg" src="" alt="" style="width: 100%; max-height: 70vh; object-fit: contain; border-radius: var(--radius-sm);">
+        <div style="padding: 12px 4px 4px; display: flex; justify-content: space-between; align-items: center;">
+            <span id="lightboxLabel" style="font-size: 1.05rem; color: var(--text-secondary);"></span>
+            <button class="btn btn-primary btn-sm" onclick="copyPhotoUrl()">Copy URL</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .photo-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .photo-card:hover {
+        border-color: var(--gold-dark);
+        transform: scale(1.02);
+    }
+
+    .photo-card.hidden { display: none; }
+
+    .photo-card img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .photo-label {
+        padding: 8px 10px;
+        font-size: 1.02rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    #photoLightbox .modal-content {
+        align-self: center;
+        border-top-left-radius: var(--radius-lg);
+        border-top-right-radius: var(--radius-lg);
+        border-bottom-left-radius: var(--radius-lg);
+        border-bottom-right-radius: var(--radius-lg);
+        animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    @media (min-width: 768px) {
+        .photo-grid { grid-template-columns: repeat(3, 1fr); }
+        .photo-card img { height: 180px; }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentPhotoUrl = '';
+
+    function filterPhotos(category, btn) {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.photo-card').forEach(card => {
+            if (category === 'all' || card.dataset.category === category) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+    }
+
+    function photoAction(card) {
+        const img = card.querySelector('img');
+        const label = card.querySelector('.photo-label');
+        currentPhotoUrl = img.src;
+        document.getElementById('lightboxImg').src = img.src;
+        document.getElementById('lightboxLabel').textContent = label.textContent;
+        document.getElementById('photoLightbox').classList.add('active');
+    }
+
+    function closeLightbox(e) {
+        if (e.target === document.getElementById('photoLightbox')) {
+            document.getElementById('photoLightbox').classList.remove('active');
+        }
+    }
+
+    function copyPhotoUrl() {
+        navigator.clipboard.writeText(currentPhotoUrl).then(() => {
+            showToast('Photo URL copied!', 'success');
+            document.getElementById('photoLightbox').classList.remove('active');
+        }).catch(() => {
+            // Fallback
+            const ta = document.createElement('textarea');
+            ta.value = currentPhotoUrl;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('Photo URL copied!', 'success');
+            document.getElementById('photoLightbox').classList.remove('active');
+        });
+    }
+</script>
+{% endblock %}

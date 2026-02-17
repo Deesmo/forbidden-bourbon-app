@@ -1,20 +1,21 @@
 {
-  "name": "Forbidden Bourbon",
-  "short_name": "Forbidden",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#191926",
-  "theme_color": "#191926",
-  "icons": [
-    {
-      "src": "/static/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/static/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+    "name": "Forbidden Dashboard",
+    "short_name": "Forbidden",
+    "description": "Forbidden Bourbon Social Media Command Center",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0b1426",
+    "theme_color": "#0b1426",
+    "icons": [
+        {
+            "src": "/static/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
 }

@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% block title %}Guide{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📖 How to Use This App</h1>
+    <p class="subtitle">Everything your team needs to know about the Forbidden Command Center</p>
+</div>
+
+<!-- OVERVIEW -->
+<div class="card" style="margin-bottom: 16px; border-left: 3px solid var(--gold);">
+    <h3 style="color: var(--gold); margin-bottom: 8px; font-size: 1rem;">What Is This?</h3>
+    <p style="font-size: 1.02rem; line-height: 1.6; color: var(--text-secondary);">
+        The Forbidden Command Center is our team's social media and brand management hub. 
+        Create posts, schedule content, generate AI images and copy, manage hashtags, access brand assets, 
+        and auto-publish SEO blog content across 6 platforms — all in one place. 
+        Everything syncs across the team. When you create, edit, or delete something, everyone sees it.
+    </p>
+</div>
+
+<!-- QUICK START -->
+<div class="card" style="margin-bottom: 16px; border-left: 3px solid #4ade80;">
+    <h3 style="color: #4ade80; margin-bottom: 10px; font-size: 1rem;">⚡ Quick Start — Post Something in 60 Seconds</h3>
+    <div style="font-size: 1.02rem; line-height: 1.8; color: var(--text-secondary);">
+        <div style="margin-bottom: 6px;"><span style="color: var(--gold); font-weight: 600;">1.</span> Tap the <span style="color: var(--gold);">＋ Compose</span> button in the nav</div>
+        <div style="margin-bottom: 6px;"><span style="color: var(--gold); font-weight: 600;">2.</span> Type your post or hit <span style="color: var(--gold);">Generate Content</span> to let AI write it</div>
+        <div style="margin-bottom: 6px;"><span style="color: var(--gold); font-weight: 600;">3.</span> Pick your platforms (Twitter, Bluesky, Instagram, etc.)</div>
+        <div style="margin-bottom: 6px;"><span style="color: var(--gold); font-weight: 600;">4.</span> Save as draft or schedule it for later</div>
+        <div><span style="color: var(--gold); font-weight: 600;">5.</span> Review in the Queue tab — edit, approve, or delete</div>
+    </div>
+</div>
+
+<!-- FEATURE SECTIONS -->
+<div style="display: flex; flex-direction: column; gap: 12px;">
+
+    <!-- DASHBOARD -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">◉</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Dashboard</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            Your home base. See total posts, drafts, scheduled content, published count, failed posts, and connected platforms at a glance. 
+            The activity feed shows recent actions so you can see what the team has been up to. 
+            Also features a Forbidden bottle showcase.
+        </p>
+    </div>
+
+    <!-- COMPOSE -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">＋</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Compose</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            Create new social media posts. Write your own content or use the <strong style="color: var(--text-primary);">AI Content Generator</strong> — 
+            just type a topic, pick a tone (Professional, Casual, Playful, Educational, Luxury), choose your platform, and hit Generate. 
+            The AI is trained on the Forbidden brand voice and will write on-brand copy instantly.
+        </p>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            You can attach images, add hashtags, select target platforms, set a schedule date, and add internal notes. 
+            Save as draft to review later or schedule for automatic posting.
+        </p>
+    </div>
+
+    <!-- QUEUE -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">☰</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Queue</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            Your content pipeline. All posts organized by status — Drafts, Scheduled, Published, Failed, and Archived. 
+            Tap any post to edit it, change its status, or delete it. Use this as the team's review board — 
+            save drafts, review together, then schedule the best ones.
+        </p>
+    </div>
+
+    <!-- TEMPLATES -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">✦</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Templates</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            80+ pre-written posts ready to go. Categories include Product Spotlights, Cocktail Recipes, 
+            Marianne Eaves features, Brand Stories, Engagement posts, Education, Pairings, Awards, Events, 
+            Seasonal campaigns, and more. 
+            Each template comes with optimized hashtags. Tap <strong style="color: var(--text-primary);">"Use"</strong> on any template to load it into the Compose screen. 
+            You can also create your own custom templates.
+        </p>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">📅</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Calendar</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            Visual calendar view of all scheduled posts. Helps you plan content timing, spot gaps in your schedule, 
+            and make sure you're posting consistently. Great for planning around events and launches.
+        </p>
+    </div>
+
+    <!-- PHOTOS -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">📷</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Photos</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            Brand photo library with 35 official images organized by category — Bottles (8), Marianne Eaves (5), 
+            Lifestyle (2), Ingredients (4), Awards (5), Logos (3), Cocktails (5), and Brand (3). Filter by category, tap any photo to view full-size, 
+            and use the <strong style="color: var(--text-primary);">Copy URL</strong> button to grab the image link for use in posts.
+        </p>
+    </div>
+
+    <!-- AI STUDIO -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">🎨</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">AI Studio</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            Generate AI-powered brand images and videos. For images, choose a style preset — 
+            Product, Lifestyle, Art Deco, Cocktail, Social Ad, or Editorial — then pick from pre-built prompts 
+            or write your own. The AI automatically adds Forbidden's brand aesthetic to every generation.
+        </p>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            For videos, choose from styles like Bourbon Pour, Bottle Glamour, Bar Scene, and Kentucky Fields. 
+            Videos take 1-3 minutes to generate. All content saves to the Gallery tab for the whole team to access.
+        </p>
+        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(200,164,94,0.08); border-radius: 8px; font-size: 1.05rem; color: var(--text-muted);">
+            💡 Images cost ~$0.04-0.12 each. Videos cost ~$0.05/second. All powered by your team's API keys set in Render.
+        </div>
+    </div>
+
+    <!-- PLATFORMS -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">⚡</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Platforms</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            Connect and manage your social media accounts — Twitter/X, Bluesky, Facebook, LinkedIn, and Instagram. 
+            Each platform card shows its connection status. Also shows the status of AI API keys (OpenAI, Anthropic, Runway ML) 
+            and blog platforms (Medium, WordPress, Blogger, Reddit, Pinterest, Quora).
+        </p>
+    </div>
+
+    <!-- BLOG HUB -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">📝</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Blog Hub</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            The SEO content engine. Generates long-form blog articles, Reddit posts, and Quora answers — then publishes 
+            them across 6 platforms to boost Google rankings and LLM visibility for Forbidden Bourbon.
+        </p>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            <strong style="color: var(--text-primary);">Generate tab:</strong> Pick from 32 pre-loaded bourbon topics or write your own. 
+            AI creates 600-1000 word SEO-optimized articles with proper headings, keywords, and a call-to-action. 
+            One-tap publish to Medium, WordPress, Blogger, or Pinterest.
+        </p>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            <strong style="color: var(--text-primary);">Reddit tab:</strong> Generates authentic-sounding Reddit posts for r/bourbon, r/whiskey, r/cocktails 
+            and other subreddits. Written to sound like a real bourbon fan, not a brand. Can auto-post via API or copy/paste.
+        </p>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            <strong style="color: var(--text-primary);">Quora tab:</strong> Generates expert answers to popular bourbon questions. Copy and paste to Quora manually — 
+            takes 30 seconds per answer. Quora answers rank #1 on Google for millions of queries.
+        </p>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            <strong style="color: var(--text-primary);">Articles tab:</strong> Full history of every generated article — see content, keywords, platform, status, 
+            and live URL. Tap to expand any article. Publish drafts with one tap or copy text.
+        </p>
+        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(74,222,128,0.06); border-radius: 8px; border: 1px solid rgba(74,222,128,0.15); font-size: 1rem; color: var(--text-secondary);">
+            🤖 <strong style="color: #4ade80;">Auto-Scheduler:</strong> Runs Mon-Fri automatically — Mon/Wed/Fri blog articles, Tue/Thu Reddit posts. 
+            No action needed. Check the Articles tab to see what it's published.
+        </div>
+        <div style="margin-top: 8px; padding: 8px 12px; background: rgba(200,164,94,0.08); border-radius: 8px; font-size: 1rem; color: var(--text-muted);">
+            💡 Platform API tokens are set in Render env vars. See the Setup tab in Blog Hub for step-by-step instructions.
+        </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">◈</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Analytics</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            Track post performance across platforms. View impressions, likes, retweets, replies, and clicks. 
+            Helps you understand what content resonates and where to focus your efforts.
+        </p>
+    </div>
+
+    <!-- BRAND INTEL -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">🔍</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Brand Intel</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            Your content repository — every article, review, video, blog post, podcast, and social mention of 
+            Forbidden Bourbon across the internet, collected in one place.
+        </p>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            <strong style="color: var(--text-primary);">Quick Scan</strong> runs 8 core searches. 
+            <strong style="color: var(--text-primary);">Deep Scan</strong> runs 30+ queries covering reviews, YouTube, Reddit, podcasts, 
+            news, awards, pricing, and comparisons. Each scan auto-fetches full article text when possible.
+        </p>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            Filter by type (Articles, Reviews, Videos, Social, Blogs, Podcasts), star important mentions, 
+            copy full content, or add mentions manually that the scanner missed. 
+            Use this library to repurpose content, track brand sentiment, and see what people are saying about Forbidden.
+        </p>
+    </div>
+
+    <!-- OUTREACH HUB -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.3rem;">🎯</span>
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Outreach Hub</h3>
+        </div>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary);">
+            CRM for influencer and industry outreach. Scan finds 35+ bourbon YouTubers, bloggers, Instagram 
+            creators, podcast hosts, bourbon bars, industry events, media outlets, and adjacent lifestyle influencers 
+            (BBQ, cigars, outdoors). Automatically scrapes public contact emails from blog contact pages.
+        </p>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            <strong style="color: var(--text-primary);">5 Contact Categories:</strong> 
+            Influencers (YouTubers, Instagram), Industry (bars, events, distilleries), 
+            Media (publications, journalists), Adjacent (BBQ, cigars, lifestyle), Community (Reddit mods, group admins).
+        </p>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            <strong style="color: var(--text-primary);">Email Templates:</strong> 
+            Pre-written outreach emails for influencers, bars/restaurants, press/media, adjacent creators, and 
+            community leaders. Track status through the full pipeline: New → Researching → Contacted → Product Sent → Posted About Us.
+        </p>
+    </div>
+
+</div>
+
+<!-- TIPS -->
+<div class="card" style="margin-top: 16px; border-left: 3px solid var(--gold);">
+    <h3 style="color: var(--gold); margin-bottom: 10px; font-size: 1rem;">💡 Tips for the Team</h3>
+    <div style="font-size: 1rem; line-height: 1.8; color: var(--text-secondary);">
+        <div style="margin-bottom: 4px;">→ Use <strong style="color: var(--text-primary);">Templates</strong> for quick posting — they're pre-written with brand voice and hashtags</div>
+        <div style="margin-bottom: 4px;">→ Instagram limits posts to <strong style="color: var(--text-primary);">5 hashtags max</strong> (2026 rule) — use the IG-specific hashtag groups</div>
+        <div style="margin-bottom: 4px;">→ Save as <strong style="color: var(--text-primary);">Draft first</strong>, review in Queue with the team, then schedule the best ones</div>
+        <div style="margin-bottom: 4px;">→ The <strong style="color: var(--text-primary);">AI Content Generator</strong> on Compose writes on-brand posts instantly — try different tones</div>
+        <div style="margin-bottom: 4px;">→ Copy image URLs from <strong style="color: var(--text-primary);">Photos</strong> to use official brand images in your posts</div>
+        <div style="margin-bottom: 4px;">→ Tap the <strong style="color: var(--text-primary);">💬 chat bubble</strong> anytime to ask the AI assistant for help</div>
+        <div style="margin-bottom: 4px;">→ The <strong style="color: var(--text-primary);">Blog Hub</strong> auto-posts 5 articles/week across 6 platforms — check Articles tab to see what's live</div>
+        <div style="margin-bottom: 4px;">→ Generate <strong style="color: var(--text-primary);">Quora answers</strong> 2-3x per week — they rank on Google and get scraped by every LLM</div>
+        <div>→ The <strong style="color: var(--text-primary);">🤖 AI button</strong> (bottom right) opens the AI assistant for help with any feature</div>
+    </div>
+</div>
+
+<!-- ABOUT FORBIDDEN -->
+<div class="card" style="margin-top: 16px; margin-bottom: 12px; background: linear-gradient(135deg, rgba(200,164,94,0.06), transparent); border: 1px solid rgba(200,164,94,0.15);">
+    <div style="text-align: center; margin-bottom: 12px;">
+        <img src="https://cdn.prod.website-files.com/647792c571ec2048ea841bfd/647d5606252da9f4beff664f_logo-header.svg" alt="Forbidden" style="height: 36px; width: auto; filter: brightness(0) invert(1);">
+    </div>
+    <p style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); text-align: center;">
+        Forbidden is a premium Kentucky wheated bourbon crafted by Master Distiller Marianne Eaves 
+        at Bardstown Bourbon Company. Our mash bill uses white corn, white wheat, and a high percentage of barley. 
+        Available as Small Batch Select and Single Barrel.
+    </p>
+    <div style="display: flex; justify-content: center; gap: 16px; margin-top: 12px; font-size: 1.05rem;">
+        <a href="https://drinkforbidden.com" target="_blank" style="color: var(--gold);">drinkforbidden.com</a>
+        <a href="https://shop.drinkforbidden.com" target="_blank" style="color: var(--gold);">Shop</a>
+    </div>
+</div>
+
+<!-- SHARE THIS APP -->
+<div class="card" style="margin-bottom: 24px; text-align: center; border: 1px solid rgba(200,164,94,0.2);">
+    <h3 style="color: var(--gold); margin-bottom: 8px; font-size: 1rem;">📲 Share This App</h3>
+    <p style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 14px;">Scan the QR code or share the link with your team</p>
+    <div style="background: #fff; border-radius: 12px; padding: 16px; display: inline-block; margin-bottom: 12px;">
+        <img src="/static/photos/qr-code.png" alt="Forbidden QR Code" style="width: 160px; height: 160px;">
+    </div>
+    <div style="margin-top: 8px;">
+        <div style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 8px;">Or copy the link:</div>
+        <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+            <code style="font-size: 1.05rem; color: var(--gold); background: rgba(200,164,94,0.08); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border);">forbidden-command-center.onrender.com</code>
+            <button onclick="navigator.clipboard.writeText('https://forbidden-command-center.onrender.com'); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',1500)" style="font-size: 1.02rem; padding: 6px 12px; background: var(--gold); color: var(--bg-dark); border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Copy</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

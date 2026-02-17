@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<div style="position: relative; margin: -16px -16px 16px -16px; height: 80px; overflow: hidden;">
+    <img src="/static/photos/bottle-top.jpg" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.15; filter: blur(2px);">
+    <div style="position: relative; z-index: 1; height: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
+        <div>
+            <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--gold); margin: 0;">Analytics</h1>
+            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 2px 0 0 0;">drinkforbidden.com · Google Analytics</p>
+        </div>
+        {% if ga4_configured %}
+        <div id="realtimeBadge" style="display: flex; align-items: center; gap: 6px; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); border-radius: 20px; padding: 4px 12px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: livePulse 2s infinite;"></span>
+            <span style="font-size: 0.95rem; color: #4ade80;" id="activeUsersCount">—</span>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">live</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<style>
+    @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+</style>
+
+{% if not ga4_configured %}
+<!-- SETUP INSTRUCTIONS -->
+<div class="card" style="border-color: var(--gold-dark); background: linear-gradient(135deg, var(--bg-card) 0%, rgba(200,164,94,0.05) 100%);">
+    <h2 style="color: var(--gold); font-size: 1.1rem; margin-bottom: 12px;">🔗 Connect Google Analytics</h2>
+    <p style="font-size: 1rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+        Link your GA4 property to see real website traffic, top pages, visitor locations, and more — all right here in Command Center.
+    </p>
+    
+    <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+        <h3 style="color: var(--text-primary); font-size: 1rem; margin-bottom: 10px;">Setup Steps:</h3>
+        <div style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.8;">
+            <div style="margin-bottom: 8px;">
+                <span style="color: var(--gold); font-weight: 600;">1.</span> Go to <a href="https://console.cloud.google.com" target="_blank" style="color: var(--gold);">Google Cloud Console</a>
+            </div>
+            <div style="margin-bottom: 8px;">
+                <span style="color: var(--gold); font-weight: 600;">2.</span> Create a project (or use existing) → Enable <strong style="color: var(--text-primary);">"Google Analytics Data API"</strong>
+            </div>
+            <div style="margin-bottom: 8px;">
+                <span style="color: var(--gold); font-weight: 600;">3.</span> Go to <strong style="color: var(--text-primary);">IAM & Admin → Service Accounts</strong> → Create one → Download JSON key
+            </div>
+            <div style="margin-bottom: 8px;">
+                <span style="color: var(--gold); font-weight: 600;">4.</span> In <strong style="color: var(--text-primary);">GA4 Admin → Property Access Management</strong>, add the service account email as <em>Viewer</em>
+            </div>
+            <div>
+                <span style="color: var(--gold); font-weight: 600;">5.</span> Add these env vars on <a href="https://dashboard.render.com" target="_blank" style="color: var(--gold);">Render</a>:
+            </div>
+        </div>
+    </div>
+    
+    <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.95rem; color: #4ade80; line-height: 1.8;">
+        <div>GA4_PROPERTY_ID = <span style="color: var(--text-muted);">your numeric property ID</span></div>
+        <div>GA4_CREDENTIALS_JSON = <span style="color: var(--text-muted);">entire JSON key file contents</span></div>
+    </div>
+    
+    <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 12px;">
+        Find your Property ID in GA4 → Admin → Property Settings. It's the number at the top.
+    </p>
+</div>
+
+{% else %}
+<!-- DATE RANGE SELECTOR -->
+<div class="filter-tabs" style="margin-bottom: 16px;">
+    <button class="filter-tab active" onclick="loadGA4(7, this)">7 Days</button>
+    <button class="filter-tab" onclick="loadGA4(14, this)">14 Days</button>
+    <button class="filter-tab" onclick="loadGA4(30, this)">30 Days</button>
+    <button class="filter-tab" onclick="loadGA4(90, this)">90 Days</button>
+</div>
+
+<!-- LOADING STATE -->
+<div id="ga4Loading" style="text-align: center; padding: 40px;">
+    <div style="font-size: 2rem; margin-bottom: 12px; animation: livePulse 1.5s infinite;">📊</div>
+    <p style="color: var(--text-muted); font-size: 1rem;">Loading analytics data...</p>
+</div>
+
+<!-- GA4 DASHBOARD (hidden until data loads) -->
+<div id="ga4Dashboard" class="hidden">
+
+    <!-- OVERVIEW STATS -->
+    <div class="stat-grid" style="margin-bottom: 16px;">
+        <div class="stat-card accent">
+            <div class="stat-value" id="statUsers">—</div>
+            <div class="stat-label">Users</div>
+            <div id="statUsersChange" style="font-size: 0.85rem; margin-top: 2px;"></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="statSessions">—</div>
+            <div class="stat-label">Sessions</div>
+            <div id="statSessionsChange" style="font-size: 0.85rem; margin-top: 2px;"></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="statPageviews">—</div>
+            <div class="stat-label">Pageviews</div>
+            <div id="statPageviewsChange" style="font-size: 0.85rem; margin-top: 2px;"></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="statDuration">—</div>
+            <div class="stat-label">Avg Duration</div>
+        </div>
+    </div>
+    
+    <!-- SECONDARY STATS -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;">
+        <div class="card" style="text-align: center; padding: 10px;">
+            <div style="font-size: 1.2rem; color: var(--gold); font-weight: 700;" id="statNewUsers">—</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">New Users</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 10px;">
+            <div style="font-size: 1.2rem; color: var(--gold); font-weight: 700;" id="statBounce">—</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Bounce Rate</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 10px;">
+            <div style="font-size: 1.2rem; color: var(--gold); font-weight: 700;" id="statEngaged">—</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Engaged</div>
+        </div>
+    </div>
+
+    <!-- TRAFFIC CHART -->
+    <div class="card" style="margin-bottom: 16px; padding: 14px;">
+        <h2 style="font-size: 1.05rem; color: var(--gold); margin-bottom: 12px;">📈 Traffic Over Time</h2>
+        <div style="position: relative; height: 220px;">
+            <canvas id="trafficChart"></canvas>
+        </div>
+    </div>
+
+    <!-- TOP PAGES -->
+    <div class="card" style="margin-bottom: 16px;">
+        <h2 style="font-size: 1.05rem; color: var(--gold); margin-bottom: 12px;">🔥 Top Pages</h2>
+        <div id="topPages" style="font-size: 0.95rem;"></div>
+    </div>
+
+    <!-- TRAFFIC SOURCES -->
+    <div class="card" style="margin-bottom: 16px;">
+        <h2 style="font-size: 1.05rem; color: var(--gold); margin-bottom: 12px;">📡 Traffic Sources</h2>
+        <div id="trafficSources"></div>
+    </div>
+
+    <!-- REFERRALS -->
+    <div class="card" style="margin-bottom: 16px;">
+        <h2 style="font-size: 1.05rem; color: var(--gold); margin-bottom: 12px;">🔗 Top Referrers</h2>
+        <div id="referrals"></div>
+    </div>
+
+    <!-- DEVICES & GEO -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+        <div class="card">
+            <h2 style="font-size: 1.05rem; color: var(--gold); margin-bottom: 12px;">📱 Devices</h2>
+            <div id="devices"></div>
+        </div>
+        <div class="card">
+            <h2 style="font-size: 1.05rem; color: var(--gold); margin-bottom: 12px;">🌍 Countries</h2>
+            <div id="geo"></div>
+        </div>
+    </div>
+
+    <!-- CITIES -->
+    <div class="card" style="margin-bottom: 16px;">
+        <h2 style="font-size: 1.05rem; color: var(--gold); margin-bottom: 12px;">🏙️ Top Cities</h2>
+        <div id="cities"></div>
+    </div>
+</div>
+{% endif %}
+
+<!-- POST HISTORY (always show) -->
+<div class="card" style="margin-bottom: 16px;">
+    <h2 style="font-size: 1.05rem; color: var(--gold); margin-bottom: 12px;">📋 Post History</h2>
+    {% if published %}
+        {% for post in published[:15] %}
+        <div style="padding: 10px 0; {% if not loop.last %}border-bottom: 1px solid var(--border);{% endif %}">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                <div style="display: flex; gap: 4px;">
+                    {% for p in post.platforms %}
+                    <span class="platform-dot {{ p.platform_name }}"></span>
+                    {% endfor %}
+                </div>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">{{ post.published_at|timeago if post.published_at else post.created_at|timeago }}</span>
+            </div>
+            <div style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.4;">
+                {{ post.content[:120] }}{% if post.content|length > 120 %}...{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: var(--text-muted); font-size: 0.95rem; text-align: center; padding: 20px;">No published posts yet.</p>
+    {% endif %}
+</div>
+
+{% if ga4_configured %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+let trafficChartInstance = null;
+
+function formatNum(n) {
+    if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+    return n.toLocaleString();
+}
+
+function changeIndicator(val) {
+    if (val === undefined || val === null) return '';
+    const color = val >= 0 ? '#4ade80' : '#f87171';
+    const arrow = val >= 0 ? '↑' : '↓';
+    return `<span style="color: ${color};">${arrow} ${Math.abs(val)}%</span>`;
+}
+
+function renderRow(label, value, sub) {
+    return `<div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+        <div style="flex: 1; color: var(--text-secondary); font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 10px;">${label}</div>
+        <div style="text-align: right; white-space: nowrap;">
+            <span style="color: var(--gold); font-weight: 600; font-size: 0.95rem;">${value}</span>
+            ${sub ? `<span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 6px;">${sub}</span>` : ''}
+        </div>
+    </div>`;
+}
+
+function renderBar(label, value, max, extra) {
+    const pct = max > 0 ? (value / max * 100) : 0;
+    return `<div style="margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 3px;">
+            <span style="color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; padding-right: 8px;">${label}</span>
+            <span style="color: var(--gold); font-weight: 600; white-space: nowrap;">${formatNum(value)} ${extra || ''}</span>
+        </div>
+        <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden;">
+            <div style="height: 100%; width: ${pct}%; background: linear-gradient(90deg, var(--gold-dark), var(--gold)); border-radius: 3px; transition: width 0.5s;"></div>
+        </div>
+    </div>`;
+}
+
+async function loadGA4(days, btn) {
+    if (btn) {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    
+    document.getElementById('ga4Loading').classList.remove('hidden');
+    document.getElementById('ga4Dashboard').classList.add('hidden');
+    
+    try {
+        const resp = await fetch('/api/ga4/data?days=' + days);
+        const data = await resp.json();
+        
+        if (!data.configured) {
+            document.getElementById('ga4Loading').innerHTML = '<p style="color: #f87171;">GA4 not configured. Add env vars and redeploy.</p>';
+            return;
+        }
+        
+        if (data.error) {
+            document.getElementById('ga4Loading').innerHTML = `<p style="color: #f87171;">Error: ${data.error}</p>`;
+            return;
+        }
+        
+        const o = data.overview;
+        if (o) {
+            document.getElementById('statUsers').textContent = formatNum(o.users);
+            document.getElementById('statSessions').textContent = formatNum(o.sessions);
+            document.getElementById('statPageviews').textContent = formatNum(o.pageviews);
+            document.getElementById('statDuration').textContent = o.avg_duration_formatted || '—';
+            document.getElementById('statNewUsers').textContent = formatNum(o.new_users);
+            document.getElementById('statBounce').textContent = o.bounce_rate_formatted || '—';
+            document.getElementById('statEngaged').textContent = formatNum(o.engaged_sessions);
+            document.getElementById('statUsersChange').innerHTML = changeIndicator(o.users_change);
+            document.getElementById('statSessionsChange').innerHTML = changeIndicator(o.sessions_change);
+            document.getElementById('statPageviewsChange').innerHTML = changeIndicator(o.pageviews_change);
+        }
+        
+        // Realtime
+        if (data.realtime) {
+            document.getElementById('activeUsersCount').textContent = data.realtime.active_users;
+        }
+        
+        // Traffic chart
+        if (data.daily && data.daily.length > 0) {
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            if (trafficChartInstance) trafficChartInstance.destroy();
+            
+            trafficChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.daily.map(d => {
+                        const dt = new Date(d.date);
+                        return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    }),
+                    datasets: [
+                        {
+                            label: 'Users',
+                            data: data.daily.map(d => d.users),
+                            borderColor: '#c8a45e',
+                            backgroundColor: 'rgba(200,164,94,0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHitRadius: 10,
+                        },
+                        {
+                            label: 'Sessions',
+                            data: data.daily.map(d => d.sessions),
+                            borderColor: '#4ade80',
+                            backgroundColor: 'rgba(74,222,128,0.05)',
+                            fill: false,
+                            tension: 0.3,
+                            borderWidth: 1.5,
+                            pointRadius: 0,
+                            pointHitRadius: 10,
+                        },
+                        {
+                            label: 'Pageviews',
+                            data: data.daily.map(d => d.pageviews),
+                            borderColor: '#60a5fa',
+                            backgroundColor: 'rgba(96,165,250,0.05)',
+                            fill: false,
+                            tension: 0.3,
+                            borderWidth: 1.5,
+                            pointRadius: 0,
+                            pointHitRadius: 10,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { color: '#9ca3af', font: { size: 11 }, boxWidth: 12, padding: 10 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#6b7280', font: { size: 10 }, maxRotation: 0, maxTicksLimit: 8 },
+                            grid: { color: 'rgba(255,255,255,0.04)' }
+                        },
+                        y: {
+                            ticks: { color: '#6b7280', font: { size: 10 } },
+                            grid: { color: 'rgba(255,255,255,0.04)' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Top pages
+        if (data.top_pages && data.top_pages.length > 0) {
+            const maxPV = data.top_pages[0].pageviews;
+            document.getElementById('topPages').innerHTML = data.top_pages.map(p => {
+                const path = p.path.length > 35 ? p.path.substring(0, 35) + '...' : p.path;
+                return renderBar(path, p.pageviews, maxPV, `<span style="font-size:0.8rem;color:var(--text-muted)">${p.users} users</span>`);
+            }).join('');
+        } else {
+            document.getElementById('topPages').innerHTML = '<p style="color:var(--text-muted);font-size:0.95rem;">No page data available</p>';
+        }
+        
+        // Traffic sources
+        if (data.sources && data.sources.length > 0) {
+            const maxS = data.sources[0].sessions;
+            document.getElementById('trafficSources').innerHTML = data.sources.map(s =>
+                renderBar(s.channel, s.sessions, maxS, `<span style="font-size:0.8rem;color:var(--text-muted)">${s.engagement_rate}% engaged</span>`)
+            ).join('');
+        } else {
+            document.getElementById('trafficSources').innerHTML = '<p style="color:var(--text-muted);font-size:0.95rem;">No source data available</p>';
+        }
+        
+        // Referrals
+        if (data.referrals && data.referrals.length > 0) {
+            document.getElementById('referrals').innerHTML = data.referrals.map(r =>
+                renderRow(r.source, formatNum(r.sessions) + ' sessions', r.users + ' users')
+            ).join('');
+        } else {
+            document.getElementById('referrals').innerHTML = '<p style="color:var(--text-muted);font-size:0.95rem;">No referral data available</p>';
+        }
+        
+        // Devices
+        if (data.devices && data.devices.length > 0) {
+            const icons = { 'Desktop': '🖥️', 'Mobile': '📱', 'Tablet': '📋' };
+            document.getElementById('devices').innerHTML = data.devices.map(d =>
+                `<div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.95rem;">
+                    <span style="color: var(--text-secondary);">${icons[d.device] || ''} ${d.device}</span>
+                    <span style="color: var(--gold); font-weight: 600;">${d.percentage}%</span>
+                </div>`
+            ).join('');
+        }
+        
+        // Geo
+        if (data.geo && data.geo.length > 0) {
+            document.getElementById('geo').innerHTML = data.geo.map(g =>
+                `<div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.95rem;">
+                    <span style="color: var(--text-secondary);">${g.country}</span>
+                    <span style="color: var(--gold); font-weight: 600;">${formatNum(g.users)}</span>
+                </div>`
+            ).join('');
+        }
+        
+        // Cities
+        if (data.cities && data.cities.length > 0) {
+            document.getElementById('cities').innerHTML = data.cities.map(c =>
+                renderRow(c.city + ', ' + c.region, formatNum(c.users) + ' users', c.sessions + ' sessions')
+            ).join('');
+        }
+        
+        document.getElementById('ga4Loading').classList.add('hidden');
+        document.getElementById('ga4Dashboard').classList.remove('hidden');
+        
+    } catch (err) {
+        document.getElementById('ga4Loading').innerHTML = '<p style="color: #f87171;">Error loading analytics: ' + err.message + '</p>';
+    }
+}
+
+// Auto-load on page ready
+loadGA4(7);
+
+// Refresh realtime every 30 seconds
+setInterval(async function() {
+    try {
+        const resp = await fetch('/api/ga4/realtime');
+        const data = await resp.json();
+        const el = document.getElementById('activeUsersCount');
+        if (el && data.active_users !== undefined) {
+            el.textContent = data.active_users;
+        }
+    } catch(e) {}
+}, 30000);
+</script>
+{% endif %}
+{% endblock %}

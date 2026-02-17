@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Calendar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Content Calendar</h1>
+    <p class="subtitle">Your posting schedule at a glance</p>
+</div>
+
+<!-- UPCOMING SCHEDULED -->
+<div class="card">
+    <div class="card-header">
+        <h2>Scheduled</h2>
+        <span class="status-badge scheduled">{{ scheduled|length }} upcoming</span>
+    </div>
+    
+    {% if scheduled %}
+    <div class="calendar-list">
+        {% set ns = namespace(current_date='') %}
+        {% for post in scheduled %}
+            {% if post.scheduled_at %}
+                {% set day = post.scheduled_at[:10] %}
+                {% if day != ns.current_date %}
+                    {% set ns.current_date = day %}
+                    <div class="calendar-day-header">{{ day }}</div>
+                {% endif %}
+                <div class="calendar-item">
+                    <div class="calendar-time">{{ post.scheduled_at[11:16] }}</div>
+                    <div class="calendar-item-content" style="flex: 1;">
+                        {{ post.content[:80] }}{% if post.content|length > 80 %}...{% endif %}
+                        <div style="margin-top: 4px; display: flex; gap: 4px;">
+                            {% for p in post.platforms %}
+                            <span class="platform-dot {{ p.platform_name }}"></span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <a href="/compose?edit={{ post.id }}" class="btn btn-ghost btn-sm">✎</a>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <div class="empty-text">Nothing scheduled. Plan your next post!</div>
+        <a href="/compose" class="btn btn-primary">Schedule Post</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- RECENTLY PUBLISHED -->
+<div class="card">
+    <div class="card-header">
+        <h2>Recently Published</h2>
+    </div>
+    
+    {% if published %}
+        {% for post in published[:15] %}
+        <div class="calendar-item">
+            <div class="calendar-time" style="color: var(--success);">
+                {{ post.published_at|shortdate if post.published_at else post.created_at|shortdate }}
+            </div>
+            <div class="calendar-item-content">
+                {{ post.content[:80] }}{% if post.content|length > 80 %}...{% endif %}
+                <div style="margin-top: 4px; display: flex; gap: 4px;">
+                    {% for p in post.platforms %}
+                    <span class="platform-dot {{ p.platform_name }}"></span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-text">No published posts yet.</div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

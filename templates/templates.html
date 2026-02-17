@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}Templates{% endblock %}
+
+{% block content %}
+<!-- TEMPLATES HERO -->
+<div style="position: relative; margin: -16px -16px 16px -16px; height: 80px; overflow: hidden;">
+    <img src="/static/photos/xmas-whiskey-sour-3.jpg" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.2; filter: blur(1px);">
+    <div style="position: relative; z-index: 1; height: 100%; display: flex; align-items: center; padding: 0 16px;">
+        <div>
+            <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--gold); margin: 0;">Content Library</h1>
+            <p style="font-size: 1.05rem; color: var(--text-muted); margin: 2px 0 0 0;">Pre-written templates & hashtag groups</p>
+        </div>
+    </div>
+</div>
+
+<!-- CREATE NEW TEMPLATE -->
+<button class="btn btn-primary btn-block mb-md" onclick="toggleNewTemplate()">＋ New Template</button>
+
+<div class="card hidden" id="newTemplateForm">
+    <div class="card-header">
+        <h2>New Template</h2>
+        <button class="btn btn-ghost btn-sm" onclick="toggleNewTemplate()">✕</button>
+    </div>
+    <div class="form-group">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-input" id="newTemplateTitle" placeholder="Template name...">
+    </div>
+    <div class="form-group">
+        <label class="form-label">Content</label>
+        <textarea class="form-textarea" id="newTemplateContent" placeholder="Template content..."></textarea>
+    </div>
+    <div style="display: flex; gap: 8px;">
+        <div style="flex: 1;">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="newTemplateCategory">
+                <option value="general">General</option>
+                <option value="product">Product</option>
+                <option value="brand">Brand</option>
+                <option value="engagement">Engagement</option>
+                <option value="recipe">Recipe</option>
+                <option value="pairing">Pairing</option>
+                <option value="sales">Sales</option>
+                <option value="event">Event</option>
+            </select>
+        </div>
+        <div style="flex: 1;">
+            <label class="form-label">Hashtags</label>
+            <input type="text" class="form-input" id="newTemplateHashtags" placeholder="#bourbon #whiskey">
+        </div>
+    </div>
+    <button class="btn btn-primary btn-block mt-md" onclick="saveTemplate()">Save Template</button>
+</div>
+
+<!-- TEMPLATE LIST -->
+<div class="section-divider"><span>Templates</span></div>
+
+{% if templates %}
+    {% for t in templates %}
+    <div class="template-card" id="template-{{ t.id }}">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="flex: 1;">
+                <div class="template-title">{{ t.title }}</div>
+                <div class="template-preview">{{ t.content }}</div>
+                {% if t.hashtags %}
+                <div class="text-xs text-gold mt-sm">{{ t.hashtags }}</div>
+                {% endif %}
+                <div class="template-meta">
+                    <span class="template-category">{{ t.category }}</span>
+                    <span>Used {{ t.use_count }}x</span>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 6px; margin-top: 10px;">
+            <a href="/compose?template={{ t.id }}" class="btn btn-primary btn-sm">Use Template</a>
+            <button class="btn btn-ghost btn-sm" onclick="deleteTemplate({{ t.id }})" style="color: var(--danger);">Delete</button>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon">✦</div>
+        <div class="empty-text">No templates yet.</div>
+    </div>
+{% endif %}
+
+<!-- HASHTAG GROUPS -->
+<div class="section-divider"><span>Hashtag Groups</span></div>
+
+<button class="btn btn-secondary btn-block btn-sm mb-md" onclick="toggleNewHashtag()">＋ New Hashtag Group</button>
+
+<div class="card hidden" id="newHashtagForm">
+    <div class="form-group">
+        <label class="form-label">Group Name</label>
+        <input type="text" class="form-input" id="newHashtagName" placeholder="e.g., Product Launch">
+    </div>
+    <div class="form-group">
+        <label class="form-label">Hashtags</label>
+        <input type="text" class="form-input" id="newHashtagTags" placeholder="#tag1 #tag2 #tag3">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="saveHashtagGroup()">Save Group</button>
+</div>
+
+{% for g in hashtag_groups %}
+<div class="card" id="hashtag-{{ g.id }}" style="padding: 14px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 4px;">{{ g.name }}</div>
+            <div class="text-xs text-gold">{{ g.hashtags }}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="deleteHashtagGroup({{ g.id }})" style="color: var(--danger);">✕</button>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleNewTemplate() {
+        document.getElementById('newTemplateForm').classList.toggle('hidden');
+    }
+    
+    function toggleNewHashtag() {
+        document.getElementById('newHashtagForm').classList.toggle('hidden');
+    }
+    
+    async function saveTemplate() {
+        const title = document.getElementById('newTemplateTitle').value.trim();
+        const content = document.getElementById('newTemplateContent').value.trim();
+        const category = document.getElementById('newTemplateCategory').value;
+        const hashtags = document.getElementById('newTemplateHashtags').value.trim();
+        
+        if (!title || !content) { showToast('Title and content required', 'error'); return; }
+        
+        const data = await apiCall('/api/templates', 'POST', { title, content, category, hashtags });
+        if (data.success) {
+            showToast('Template saved!', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.error, 'error');
+        }
+    }
+    
+    async function deleteTemplate(id) {
+        if (!confirmAction('Delete this template?')) return;
+        const data = await apiCall(`/api/templates/${id}`, 'DELETE');
+        if (data.success) {
+            document.getElementById(`template-${id}`).remove();
+            showToast('Template deleted', 'success');
+        }
+    }
+    
+    async function saveHashtagGroup() {
+        const name = document.getElementById('newHashtagName').value.trim();
+        const hashtags = document.getElementById('newHashtagTags').value.trim();
+        
+        if (!name || !hashtags) { showToast('Name and hashtags required', 'error'); return; }
+        
+        const data = await apiCall('/api/hashtags', 'POST', { name, hashtags });
+        if (data.success) {
+            showToast('Hashtag group saved!', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.error, 'error');
+        }
+    }
+    
+    async function deleteHashtagGroup(id) {
+        if (!confirmAction('Delete this hashtag group?')) return;
+        const data = await apiCall(`/api/hashtags/${id}`, 'DELETE');
+        if (data.success) {
+            document.getElementById(`hashtag-${id}`).remove();
+            showToast('Hashtag group deleted', 'success');
+        }
+    }
+</script>
+{% endblock %}

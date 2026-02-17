@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+{% block title %}Platforms{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Platforms</h1>
+    <p class="subtitle">Connect your social accounts</p>
+</div>
+
+{% for p in platforms %}
+<div class="platform-card" id="platform-{{ p.name }}">
+    <div class="platform-header">
+        <div class="platform-icon {{ p.name }}">{{ p.icon }}</div>
+        <div style="flex: 1;">
+            <div style="font-weight: 600;">{{ p.display_name }}</div>
+            <div class="connection-status {% if p.connected %}connected{% else %}disconnected{% endif %}">
+                <span class="status-dot {% if p.connected %}published{% else %}draft{% endif %}"></span>
+                {% if p.connected %}
+                    Connected{% if p.username %} as {{ p.username }}{% endif %}
+                {% else %}
+                    Not connected
+                {% endif %}
+            </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="togglePlatformConfig('{{ p.name }}')">
+            {% if p.connected %}⚙{% else %}＋{% endif %}
+        </button>
+    </div>
+    
+    <!-- SETUP INSTRUCTIONS -->
+    <div class="hidden" id="config-{{ p.name }}">
+        {% if p.name == 'bluesky' %}
+        <div class="text-sm text-muted mb-md">
+            Bluesky is the easiest to connect! Go to <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app/settings/app-passwords</a>, 
+            create an app password, and enter your handle and the app password below.
+        </div>
+        <div class="form-group">
+            <label class="form-label">Handle</label>
+            <input type="text" class="form-input" id="bluesky-username" placeholder="yourname.bsky.social" value="{{ p.username }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">App Password</label>
+            <input type="password" class="form-input" id="bluesky-api_key" placeholder="xxxx-xxxx-xxxx-xxxx" value="{{ p.api_key }}">
+        </div>
+        
+        {% elif p.name == 'twitter' %}
+        <div class="text-sm text-muted mb-md">
+            Go to <a href="https://developer.twitter.com/en/portal/dashboard" target="_blank">developer.twitter.com</a>. 
+            Create a project & app (Free tier works — allows posting tweets). 
+            Generate API Key, API Secret, Access Token, and Access Token Secret.
+        </div>
+        <div class="form-group">
+            <label class="form-label">Username (without @)</label>
+            <input type="text" class="form-input" id="twitter-username" placeholder="forbiddenbourbon" value="{{ p.username }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">API Key</label>
+            <input type="password" class="form-input" id="twitter-api_key" placeholder="API Key" value="{{ p.api_key }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">API Secret</label>
+            <input type="password" class="form-input" id="twitter-api_secret" placeholder="API Secret" value="{{ p.api_secret }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Access Token</label>
+            <input type="password" class="form-input" id="twitter-access_token" placeholder="Access Token" value="{{ p.access_token }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Access Token Secret</label>
+            <input type="password" class="form-input" id="twitter-refresh_token" placeholder="Access Token Secret" value="{{ p.refresh_token }}">
+        </div>
+        
+        {% elif p.name == 'facebook' %}
+        <div class="text-sm text-muted mb-md">
+            You need a Facebook App and Page. Go to <a href="https://developers.facebook.com/tools/explorer/" target="_blank">Graph API Explorer</a>, 
+            select your app and page, generate a Page Access Token with <code>pages_manage_posts</code> permission.
+            Then extend it to a long-lived token.
+        </div>
+        <div class="form-group">
+            <label class="form-label">Page ID</label>
+            <input type="text" class="form-input" id="facebook-username" placeholder="Your Facebook Page ID" value="{{ p.username }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Page Access Token</label>
+            <input type="password" class="form-input" id="facebook-access_token" placeholder="Long-lived Page Access Token" value="{{ p.access_token }}">
+        </div>
+        
+        {% elif p.name == 'linkedin' %}
+        <div class="text-sm text-muted mb-md">
+            Create a LinkedIn App at <a href="https://www.linkedin.com/developers/" target="_blank">linkedin.com/developers</a>. 
+            Request the <code>w_member_social</code> permission. Generate an access token via OAuth 2.0.
+        </div>
+        <div class="form-group">
+            <label class="form-label">Author URN</label>
+            <input type="text" class="form-input" id="linkedin-username" placeholder="urn:li:person:XXXXX or urn:li:organization:XXXXX" value="{{ p.username }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Access Token</label>
+            <input type="password" class="form-input" id="linkedin-access_token" placeholder="OAuth 2.0 Access Token" value="{{ p.access_token }}">
+        </div>
+        
+        {% elif p.name == 'instagram' %}
+        <div class="text-sm text-muted mb-md">
+            Instagram requires Meta's Business API with app review. For now, we recommend posting manually 
+            or using the Facebook integration (which can cross-post to Instagram if linked).
+            <br><br>
+            <strong>Coming soon:</strong> Direct Instagram publishing.
+        </div>
+        
+        {% endif %}
+        
+        {% if p.name != 'instagram' %}
+        <div style="display: flex; gap: 8px; margin-top: 16px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="savePlatform('{{ p.name }}')">
+                Save & Test
+            </button>
+            {% if p.connected %}
+            <button class="btn btn-danger" onclick="disconnectPlatform('{{ p.name }}')">
+                Disconnect
+            </button>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+<!-- AI API KEYS -->
+<div class="section-divider"><span>AI Content Generation</span></div>
+
+<div class="card" style="margin-bottom: 12px;">
+    <div class="card-header">
+        <h2>Claude (Anthropic)</h2>
+        <span class="text-xs text-muted">Powers the content generator — better writing quality</span>
+    </div>
+    <div class="text-sm text-muted mb-md">
+        Add <code>ANTHROPIC_API_KEY</code> in Render env vars.
+        Get a key at <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>.
+    </div>
+    <div class="status-badge {% if config.ANTHROPIC_API_KEY %}published{% else %}draft{% endif %}">
+        {% if config.ANTHROPIC_API_KEY %}✓ Claude Connected{% else %}Not configured (will fall back to OpenAI){% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>OpenAI</h2>
+        <span class="text-xs text-muted">Powers DALL-E images, AI help assistant, and fallback content</span>
+    </div>
+    <div class="text-sm text-muted mb-md">
+        Add <code>OPENAI_API_KEY</code> in Render env vars.
+        Get a key at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>.
+    </div>
+    <div class="status-badge {% if config.OPENAI_API_KEY %}published{% else %}draft{% endif %}">
+        {% if config.OPENAI_API_KEY %}✓ OpenAI Connected{% else %}Not configured{% endif %}
+    </div>
+</div>
+
+<div class="section-divider"><span>AI Image & Video Generation</span></div>
+
+<div class="platform-card" id="platform-openai">
+    <div class="platform-header">
+        <div class="platform-icon" style="background: rgba(116,200,150,0.15); color: #74c896;">🎨</div>
+        <div style="flex: 1;">
+            <div style="font-weight: 600;">OpenAI — DALL-E 3</div>
+            <div class="connection-status {% if openai_connected %}connected{% else %}disconnected{% endif %}">
+                <span class="status-dot {% if openai_connected %}published{% else %}draft{% endif %}"></span>
+                {% if openai_connected %}Connected{% else %}Not connected{% endif %}
+            </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="togglePlatformConfig('openai')">
+            {% if openai_connected %}⚙{% else %}＋{% endif %}
+        </button>
+    </div>
+    <div class="hidden" id="config-openai">
+        <div class="text-sm text-muted mb-md">
+            Sign up at <a href="https://platform.openai.com/" target="_blank">platform.openai.com</a>. 
+            Add $10-20 credit (images cost ~$0.04-0.12 each). 
+            Go to API Keys → Create new secret key.
+        </div>
+        <div class="form-group">
+            <label class="form-label">API Key</label>
+            <input type="password" class="form-input" id="openai-api_key" placeholder="sk-..." value="{{ openai_key }}">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 16px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="saveAIKey('openai')">Save</button>
+            {% if openai_connected %}
+            <button class="btn btn-danger" onclick="disconnectPlatform('openai')">Remove</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="platform-card" id="platform-runway">
+    <div class="platform-header">
+        <div class="platform-icon" style="background: rgba(147,112,219,0.15); color: #9370db;">🎬</div>
+        <div style="flex: 1;">
+            <div style="font-weight: 600;">Runway ML — AI Video</div>
+            <div class="connection-status {% if runway_connected %}connected{% else %}disconnected{% endif %}">
+                <span class="status-dot {% if runway_connected %}published{% else %}draft{% endif %}"></span>
+                {% if runway_connected %}Connected{% else %}Not connected{% endif %}
+            </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="togglePlatformConfig('runway')">
+            {% if runway_connected %}⚙{% else %}＋{% endif %}
+        </button>
+    </div>
+    <div class="hidden" id="config-runway">
+        <div class="text-sm text-muted mb-md">
+            Sign up at <a href="https://runwayml.com/" target="_blank">runwayml.com</a>. 
+            Go to Settings → API Keys → Create API key. Free credits included to start.
+        </div>
+        <div class="form-group">
+            <label class="form-label">API Key</label>
+            <input type="password" class="form-input" id="runway-api_key" placeholder="rw_..." value="{{ runway_key }}">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 16px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="saveAIKey('runway')">Save</button>
+            {% if runway_connected %}
+            <button class="btn btn-danger" onclick="disconnectPlatform('runway')">Remove</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function togglePlatformConfig(name) {
+        const config = document.getElementById(`config-${name}`);
+        config.classList.toggle('hidden');
+    }
+    
+    async function savePlatform(name) {
+        const fields = document.querySelectorAll(`[id^="${name}-"]`);
+        const data = {};
+        
+        fields.forEach(field => {
+            const key = field.id.replace(`${name}-`, '');
+            data[key] = field.value.trim();
+        });
+        
+        // First save credentials
+        try {
+            await apiCall(`/api/platforms/${name}`, 'PUT', data);
+            
+            // Then test connection
+            const testResult = await apiCall(`/api/platforms/${name}/test`, 'POST');
+            
+            if (testResult.success) {
+                showToast(testResult.message || `${name} connected!`, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast(`Connection failed: ${testResult.error}`, 'error');
+            }
+        } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+        }
+    }
+    
+    async function disconnectPlatform(name) {
+        if (!confirmAction(`Disconnect ${name}? This will remove your API credentials.`)) return;
+        
+        try {
+            const data = await apiCall(`/api/platforms/${name}/disconnect`, 'POST');
+            if (data.success) {
+                showToast(`${name} disconnected`, 'success');
+                setTimeout(() => location.reload(), 1000);
+            }
+        } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+        }
+    }
+
+    async function saveAIKey(name) {
+        const keyInput = document.getElementById(`${name}-api_key`);
+        const key = keyInput.value.trim();
+        if (!key) { showToast('Please enter an API key', 'error'); return; }
+        try {
+            await apiCall(`/api/platforms/${name}`, 'PUT', { api_key: key, connected: 1 });
+            showToast(`${name} key saved!`, 'success');
+            setTimeout(() => location.reload(), 1000);
+        } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+        }
+    }
+</script>
+{% endblock %}

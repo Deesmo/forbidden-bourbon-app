@@ -1,0 +1,552 @@
+{% extends "base.html" %}
+{% block title %}Blog Hub{% endblock %}
+
+{% block content %}
+<!-- BLOG HERO -->
+<div style="position: relative; margin: -16px -16px 16px -16px; height: 80px; overflow: hidden;">
+    <img src="/static/photos/mash-networks-banner.jpg" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.2; filter: blur(1px);">
+    <div style="position: relative; z-index: 1; height: 100%; display: flex; align-items: center; padding: 0 16px;">
+        <div>
+            <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--gold); margin: 0;">Blog Hub</h1>
+            <p style="font-size: 1.05rem; color: var(--text-muted); margin: 2px 0 0 0;">SEO content engine — boost Google & LLM visibility everywhere</p>
+        </div>
+    </div>
+</div>
+
+<!-- STATS -->
+<div class="stat-grid" style="margin-bottom: 12px;">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Articles</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.published }}</div>
+        <div class="stat-label">Published</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.drafts }}</div>
+        <div class="stat-label">Drafts</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.topics }}</div>
+        <div class="stat-label">Topics</div>
+    </div>
+</div>
+
+<!-- AUTO-SCHEDULER STATUS -->
+<div id="schedulerBanner" class="card" style="margin-bottom: 16px; padding: 10px 14px; border-left: 3px solid #4ade80; background: rgba(74,222,128,0.04);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div style="font-size: 1.05rem; color: #4ade80; font-weight: 600;">⚡ Auto-Scheduler Active</div>
+            <div id="schedulerDetail" style="font-size: 1.02rem; color: var(--text-muted); margin-top: 2px;">Loading...</div>
+        </div>
+        <div style="font-size: 1.05rem; color: var(--text-muted); text-align: right;">
+            <div>2-3 posts/week</div>
+            <div>Mon–Fri rotation</div>
+        </div>
+    </div>
+</div>
+
+<!-- MODE TABS -->
+<div class="filter-tabs" style="margin-bottom: 16px;">
+    <button class="filter-tab active" onclick="switchBlogMode('generate', this)">✦ Generate</button>
+    <button class="filter-tab" onclick="switchBlogMode('reddit', this)">🤖 Reddit</button>
+    <button class="filter-tab" onclick="switchBlogMode('quora', this)">❓ Quora</button>
+    <button class="filter-tab" onclick="switchBlogMode('articles', this)">📄 Articles</button>
+    <button class="filter-tab" onclick="switchBlogMode('topics', this)">💡 Topics</button>
+    <button class="filter-tab" onclick="switchBlogMode('platforms', this)">🔗 Setup</button>
+</div>
+
+<!-- GENERATE MODE (Blog Articles) -->
+<div id="generateMode">
+    <div class="card" style="margin-bottom: 16px;">
+        <h3 style="color: var(--gold); font-size: 1rem; margin-bottom: 12px;">✦ Generate Blog Article</h3>
+        <p style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 12px;">Long-form SEO content for Medium, WordPress, Blogger, or Pinterest</p>
+        
+        <div style="margin-bottom: 12px;">
+            <label style="font-size: 1.05rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 6px;">Pick a Topic or Write Your Own</label>
+            <select id="topicSelect" class="form-input" style="margin-bottom: 8px;" onchange="selectTopic(this)">
+                <option value="">— Choose from topic library —</option>
+                {% for topic in topics %}
+                <option value="{{ topic.title }}" data-keywords="{{ topic.keywords }}" data-category="{{ topic.category }}">
+                    {{ topic.title }} ({{ topic.category }}) {% if topic.times_used > 0 %}— used {{ topic.times_used }}x{% endif %}
+                </option>
+                {% endfor %}
+            </select>
+            <input type="text" class="form-input" id="blogTopic" placeholder="Or type a custom topic...">
+        </div>
+        
+        <div style="margin-bottom: 12px;">
+            <label style="font-size: 1.05rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 6px;">SEO Keywords</label>
+            <input type="text" class="form-input" id="blogKeywords" placeholder="bourbon, whiskey, cocktail recipe...">
+        </div>
+        
+        <div style="margin-bottom: 14px;">
+            <label style="font-size: 1.05rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 6px;">Custom Instructions (Optional)</label>
+            <textarea class="form-input" id="blogCustomPrompt" rows="2" placeholder="e.g., Focus on holiday entertaining, include recipe..."></textarea>
+        </div>
+        
+        <button class="btn btn-primary btn-block" id="generateBtn" onclick="generateArticle()">✦ Generate Article</button>
+    </div>
+    
+    <div class="card hidden" id="previewCard" style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="color: var(--gold); font-size: 1rem; margin: 0;">Article Preview</h3>
+            <span id="wordCount" style="font-size: 1.02rem; color: var(--text-muted);"></span>
+        </div>
+        <h2 id="previewTitle" style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 8px;"></h2>
+        <p id="previewExcerpt" style="font-size: 1rem; color: var(--text-muted); font-style: italic; margin-bottom: 12px;"></p>
+        <div id="previewContent" style="font-size: 1.02rem; line-height: 1.7; color: var(--text-secondary); max-height: 400px; overflow-y: auto; padding-right: 8px;"></div>
+        
+        <div style="margin-top: 14px; font-size: 1.05rem; color: var(--text-muted); margin-bottom: 8px;">Publish to:</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="publishTo('medium')" style="font-size: 1.05rem;">📝 Medium</button>
+            <button class="btn btn-primary" onclick="publishTo('wordpress')" style="font-size: 1.05rem;">📰 WordPress</button>
+            <button class="btn btn-primary" onclick="publishTo('blogger')" style="font-size: 1.05rem;">📢 Blogger</button>
+            <button class="btn btn-primary" onclick="publishTo('pinterest')" style="font-size: 1.05rem;">📌 Pinterest</button>
+            <button class="btn btn-ghost" onclick="generateArticle()" style="font-size: 1.05rem; margin-left: auto;">↻ Redo</button>
+        </div>
+    </div>
+</div>
+
+<!-- REDDIT MODE -->
+<div id="redditMode" class="hidden">
+    <div class="card" style="margin-bottom: 16px; border-left: 3px solid #ff4500;">
+        <h3 style="color: #ff4500; font-size: 1rem; margin-bottom: 4px;">🤖 Reddit Post Generator</h3>
+        <p style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 12px;">
+            Authentic Reddit posts — written like a real bourbon fan, not a brand. Google heavily indexes Reddit. LLMs train on it.
+        </p>
+        
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 1.05rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 6px;">Subreddit</label>
+            <select id="redditSubreddit" class="form-input">
+                <option value="bourbon">r/bourbon</option>
+                <option value="whiskey">r/whiskey</option>
+                <option value="cocktails">r/cocktails</option>
+                <option value="Kentucky">r/Kentucky</option>
+                <option value="alcohol">r/alcohol</option>
+                <option value="craftspirits">r/craftspirits</option>
+            </select>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 1.05rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 6px;">Topic / Discussion Idea</label>
+            <select id="redditTopicSelect" class="form-input" style="margin-bottom: 8px;" onchange="if(this.value) document.getElementById('redditTopic').value=this.value">
+                <option value="">— Quick picks —</option>
+                <option value="What's your go-to wheated bourbon?">Wheated bourbon recs</option>
+                <option value="Anyone tried small batch from Bardstown area?">Bardstown small batch</option>
+                <option value="Best bourbon cocktail for a whiskey newbie?">Best intro cocktail</option>
+                <option value="Wheated vs rye bourbon - what do you prefer?">Wheated vs rye</option>
+                <option value="Top bourbon under $60 that people sleep on?">Underrated bourbons</option>
+                <option value="Best bourbon for an Old Fashioned?">Old Fashioned picks</option>
+                <option value="Kentucky distillery visit recommendations?">Distillery tour recs</option>
+            </select>
+            <input type="text" class="form-input" id="redditTopic" placeholder="Or write your own topic...">
+        </div>
+        
+        <button class="btn btn-block" id="redditGenBtn" onclick="generateReddit()" style="background: #ff4500; color: white; border: none;">🤖 Generate Reddit Post</button>
+    </div>
+    
+    <div class="card hidden" id="redditPreview" style="margin-bottom: 16px; border-left: 3px solid #ff4500;">
+        <div style="font-size: 1rem; color: var(--text-muted); margin-bottom: 6px;">r/<span id="redditPreviewSub"></span></div>
+        <h3 id="redditPreviewTitle" style="color: var(--text-primary); font-size: 1.05rem; margin-bottom: 10px;"></h3>
+        <div id="redditPreviewBody" style="font-size: 1.02rem; line-height: 1.7; color: var(--text-secondary); white-space: pre-wrap; max-height: 350px; overflow-y: auto;"></div>
+        <div style="display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;">
+            <button class="btn" onclick="publishReddit()" style="background: #ff4500; color: white; border: none; font-size: 1.05rem;">📤 Post to Reddit</button>
+            <button class="btn btn-ghost" onclick="copyReddit()" style="font-size: 1.05rem;">📋 Copy</button>
+            <button class="btn btn-ghost" onclick="generateReddit()" style="font-size: 1.05rem;">↻ Redo</button>
+        </div>
+    </div>
+</div>
+
+<!-- QUORA MODE -->
+<div id="quoraMode" class="hidden">
+    <div class="card" style="margin-bottom: 16px; border-left: 3px solid #b92b27;">
+        <h3 style="color: #b92b27; font-size: 1rem; margin-bottom: 4px;">❓ Quora Answer Generator</h3>
+        <p style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 12px;">
+            Expert Quora answers to copy/paste. Quora ranks #1 on Google for millions of queries and is scraped by every LLM.
+        </p>
+        
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 1.05rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 6px;">Question to Answer</label>
+            <select id="quoraQuestionSelect" class="form-input" style="margin-bottom: 8px;" onchange="if(this.value) document.getElementById('quoraTopic').value=this.value">
+                <option value="">— Popular bourbon questions —</option>
+                <option value="What is the best wheated bourbon?">Best wheated bourbon?</option>
+                <option value="What bourbon should I buy as a gift?">Bourbon gift ideas?</option>
+                <option value="How do you drink bourbon properly?">How to drink bourbon?</option>
+                <option value="What's the best bourbon for cocktails?">Best cocktail bourbon?</option>
+                <option value="What makes Kentucky bourbon special?">What makes KY bourbon special?</option>
+                <option value="Is wheated bourbon smoother than rye?">Wheated vs rye smoothness?</option>
+                <option value="Best Kentucky distilleries to visit?">Best distillery tours?</option>
+                <option value="What bourbon is like Maker's Mark but better?">Better than Maker's Mark?</option>
+                <option value="What is a mash bill and why does it matter?">What is a mash bill?</option>
+                <option value="Who are the best female distillers in America?">Best female distillers?</option>
+            </select>
+            <input type="text" class="form-input" id="quoraTopic" placeholder="Or type any question...">
+        </div>
+        
+        <button class="btn btn-block" id="quoraGenBtn" onclick="generateQuora()" style="background: #b92b27; color: white; border: none;">❓ Generate Answer</button>
+    </div>
+    
+    <div class="card hidden" id="quoraPreview" style="margin-bottom: 16px; border-left: 3px solid #b92b27;">
+        <div style="font-size: 1.05rem; color: #b92b27; font-weight: 600; margin-bottom: 6px;">Question:</div>
+        <h3 id="quoraPreviewQ" style="color: var(--text-primary); font-size: 1.05rem; margin-bottom: 12px;"></h3>
+        <div style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 6px;">Your Answer:</div>
+        <div id="quoraPreviewA" style="font-size: 1.02rem; line-height: 1.7; color: var(--text-secondary); white-space: pre-wrap; max-height: 350px; overflow-y: auto;"></div>
+        <div id="quoraTags" style="font-size: 1.02rem; color: var(--text-muted); margin-top: 10px;"></div>
+        <div style="display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;">
+            <a href="https://www.quora.com/search?q=bourbon" target="_blank" class="btn" style="background: #b92b27; color: white; border: none; text-decoration: none; font-size: 1.05rem;">🔗 Open Quora</a>
+            <button class="btn btn-ghost" onclick="copyQuora()" style="font-size: 1.05rem;">📋 Copy Answer</button>
+            <button class="btn btn-ghost" onclick="generateQuora()" style="font-size: 1.05rem;">↻ Redo</button>
+        </div>
+    </div>
+    
+    <div class="card" style="background: rgba(185,43,39,0.06); border: 1px solid rgba(185,43,39,0.15);">
+        <h3 style="color: #b92b27; font-size: 1.05rem; margin-bottom: 8px;">💡 Quora Strategy</h3>
+        <p style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.5;">
+            Search Quora for bourbon questions with lots of followers but few answers. Paste your generated answer, tweak it slightly to feel personal. 2-3 per week compounds fast.
+        </p>
+    </div>
+</div>
+
+<!-- ARTICLES / BLOG LOG MODE -->
+<div id="articlesMode" class="hidden">
+    <!-- Auto-Scheduler Status -->
+    <div class="card" style="margin-bottom: 12px; border-left: 3px solid #4ade80;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="color: #4ade80; font-size: 1.05rem; margin: 0;">🤖 Auto-Scheduler Active</h3>
+                <div style="font-size: 1.05rem; color: var(--text-muted); margin-top: 3px;">
+                    Mon → Medium · Tue → Reddit · Wed → WordPress · Thu → Reddit · Fri → Blogger
+                </div>
+            </div>
+            <span style="font-size: 1.05rem; background: rgba(74,222,128,0.15); color: #4ade80; padding: 3px 8px; border-radius: 12px;">Running</span>
+        </div>
+    </div>
+    
+    <div style="font-size: 1rem; color: var(--text-muted); margin-bottom: 12px;">All generated content — tap any article to expand</div>
+    {% if articles %}
+    {% for article in articles %}
+    <div class="card" style="margin-bottom: 10px;" id="article-{{ article.id }}">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; cursor: pointer;" onclick="toggleArticle({{ article.id }})">
+            <div style="flex: 1;">
+                <h3 style="color: var(--text-primary); font-size: 1.05rem; margin: 0;">{{ article.title }}</h3>
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px; flex-wrap: wrap;">
+                    <span class="status-badge {{ article.status }}" style="font-size: 0.98rem;">{{ article.status }}</span>
+                    {% if article.platform %}<span style="font-size: 1.05rem; color: var(--gold);">{{ article.platform }}</span>{% endif %}
+                    <span style="font-size: 1.05rem; color: var(--text-muted);">{{ article.word_count }} words</span>
+                    <span style="font-size: 1.05rem; color: var(--text-muted);">{{ article.created_at[:10] if article.created_at else '' }}</span>
+                </div>
+            </div>
+            <span style="font-size: 1.02rem; color: var(--text-muted); transform: rotate(0deg); transition: 0.2s;" id="arrow-{{ article.id }}">▼</span>
+        </div>
+        
+        <!-- EXPANDABLE CONTENT -->
+        <div class="hidden" id="content-{{ article.id }}" style="margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px;">
+            {% if article.excerpt %}
+            <p style="font-size: 1.05rem; color: var(--text-muted); font-style: italic; margin-bottom: 8px;">{{ article.excerpt }}</p>
+            {% endif %}
+            <div style="font-size: 1rem; line-height: 1.7; color: var(--text-secondary); max-height: 300px; overflow-y: auto;">{{ article.content | safe }}</div>
+            {% if article.keywords %}
+            <div style="font-size: 1rem; color: var(--text-muted); margin-top: 8px;">Keywords: {{ article.keywords }}</div>
+            {% endif %}
+            <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center;">
+                {% if article.platform_url %}
+                <a href="{{ article.platform_url }}" target="_blank" style="font-size: 1.05rem; color: var(--gold);">View on {{ article.platform }} →</a>
+                {% endif %}
+                {% if article.status == 'draft' %}
+                <button onclick="quickPublish({{ article.id }}, 'medium')" style="font-size: 1rem; color: var(--bg-dark); background: var(--gold); border: none; padding: 4px 10px; border-radius: 12px; cursor: pointer;">→ Medium</button>
+                <button onclick="quickPublish({{ article.id }}, 'wordpress')" style="font-size: 1rem; color: var(--bg-dark); background: var(--gold); border: none; padding: 4px 10px; border-radius: 12px; cursor: pointer;">→ WordPress</button>
+                <button onclick="quickPublish({{ article.id }}, 'blogger')" style="font-size: 1rem; color: var(--bg-dark); background: var(--gold); border: none; padding: 4px 10px; border-radius: 12px; cursor: pointer;">→ Blogger</button>
+                <button onclick="quickPublish({{ article.id }}, 'reddit')" style="font-size: 1rem; color: white; background: #ff4500; border: none; padding: 4px 10px; border-radius: 12px; cursor: pointer;">→ Reddit</button>
+                {% endif %}
+                <button onclick="copyArticle({{ article.id }})" style="font-size: 1rem; color: var(--text-muted); background: none; border: 1px solid var(--border); padding: 4px 10px; border-radius: 12px; cursor: pointer;">📋 Copy</button>
+                <button onclick="deleteArticle({{ article.id }})" style="font-size: 1rem; color: #f87171; background: none; border: none; cursor: pointer; margin-left: auto;">Delete</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="card" style="text-align: center; padding: 32px;">
+        <div style="font-size: 2rem; margin-bottom: 8px;">📝</div>
+        <p style="color: var(--text-muted); font-size: 1rem;">No articles yet. Generate your first one or wait for auto-scheduler!</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- TOPICS MODE -->
+<div id="topicsMode" class="hidden">
+    <div class="card" style="margin-bottom: 12px;">
+        <h3 style="color: var(--gold); font-size: 1rem; margin-bottom: 10px;">Add Custom Topic</h3>
+        <input type="text" class="form-input" id="newTopicTitle" placeholder="Topic title..." style="margin-bottom: 8px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+            <select class="form-input" id="newTopicCategory" style="flex: 1;">
+                <option value="education">Education</option>
+                <option value="cocktails">Cocktails</option>
+                <option value="culture">Culture</option>
+                <option value="pairing">Food Pairing</option>
+                <option value="people">People</option>
+                <option value="seasonal">Seasonal</option>
+                <option value="general">General</option>
+            </select>
+            <input type="text" class="form-input" id="newTopicKeywords" placeholder="Keywords..." style="flex: 1.5;">
+        </div>
+        <button class="btn btn-primary btn-block" onclick="addTopic()">+ Add Topic</button>
+    </div>
+    <div style="font-size: 1rem; color: var(--text-muted); margin-bottom: 12px;">{{ topics|length }} topics — least used first</div>
+    {% for topic in topics %}
+    <div class="card" style="margin-bottom: 8px; padding: 10px 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="font-size: 1.02rem; color: var(--text-primary);">{{ topic.title }}</div>
+                <div style="font-size: 1rem; color: var(--text-muted);">{{ topic.category }} · {{ topic.keywords }}</div>
+            </div>
+            <div style="font-size: 1rem; color: var(--text-muted);">{% if topic.times_used > 0 %}{{ topic.times_used }}x{% else %}New{% endif %}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- PLATFORMS SETUP MODE -->
+<div id="platformsMode" class="hidden">
+    <div class="card" style="margin-bottom: 12px; border-left: 3px solid var(--gold);">
+        <h3 style="color: var(--gold); font-size: 1rem; margin-bottom: 8px;">Platform Setup</h3>
+        <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-secondary);">Add platform tokens as environment variables in Render. Each published article creates indexed content linking to drinkforbidden.com.</p>
+    </div>
+    
+    <div class="card" style="margin-bottom: 10px;">
+        <h3 style="color: var(--text-primary); font-size: 1.05rem; margin-bottom: 8px;">📝 Medium <span style="font-size: 1rem; color: var(--gold);">High SEO</span></h3>
+        <div style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.6;">
+            1. <a href="https://medium.com/me/settings/security" target="_blank" style="color: var(--gold);">medium.com/me/settings/security</a> → Integration tokens<br>
+            2. Render: <code style="color: var(--gold);">MEDIUM_TOKEN</code>
+        </div>
+    </div>
+    
+    <div class="card" style="margin-bottom: 10px;">
+        <h3 style="color: var(--text-primary); font-size: 1.05rem; margin-bottom: 8px;">📰 WordPress.com <span style="font-size: 1rem; color: var(--gold);">High SEO</span></h3>
+        <div style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.6;">
+            1. Create blog at <a href="https://wordpress.com" target="_blank" style="color: var(--gold);">wordpress.com</a><br>
+            2. <a href="https://developer.wordpress.com/apps/" target="_blank" style="color: var(--gold);">developer.wordpress.com/apps</a> → Create app<br>
+            3. Render: <code style="color: var(--gold);">WORDPRESS_SITE</code> + <code style="color: var(--gold);">WORDPRESS_TOKEN</code>
+        </div>
+    </div>
+    
+    <div class="card" style="margin-bottom: 10px;">
+        <h3 style="color: var(--text-primary); font-size: 1.05rem; margin-bottom: 8px;">📢 Blogger <span style="font-size: 1rem; color: var(--gold);">Google-Owned</span></h3>
+        <div style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.6;">
+            1. Create blog at <a href="https://blogger.com" target="_blank" style="color: var(--gold);">blogger.com</a><br>
+            2. Render: <code style="color: var(--gold);">BLOGGER_BLOG_ID</code> + <code style="color: var(--gold);">BLOGGER_TOKEN</code>
+        </div>
+    </div>
+    
+    <div class="card" style="margin-bottom: 10px;">
+        <h3 style="color: var(--text-primary); font-size: 1.05rem; margin-bottom: 8px;">🤖 Reddit <span style="font-size: 1rem; color: #ff4500;">Highest LLM Impact</span></h3>
+        <div style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.6;">
+            1. <a href="https://reddit.com" target="_blank" style="color: var(--gold);">reddit.com</a> → Create account<br>
+            2. <a href="https://www.reddit.com/prefs/apps" target="_blank" style="color: var(--gold);">reddit.com/prefs/apps</a> → Create app (script type)<br>
+            3. Render: <code style="color: var(--gold);">REDDIT_CLIENT_ID</code> · <code style="color: var(--gold);">REDDIT_CLIENT_SECRET</code> · <code style="color: var(--gold);">REDDIT_USERNAME</code> · <code style="color: var(--gold);">REDDIT_PASSWORD</code>
+        </div>
+    </div>
+    
+    <div class="card" style="margin-bottom: 10px;">
+        <h3 style="color: var(--text-primary); font-size: 1.05rem; margin-bottom: 8px;">📌 Pinterest <span style="font-size: 1rem; color: var(--gold);">Visual SEO</span></h3>
+        <div style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.6;">
+            1. <a href="https://pinterest.com/business/create/" target="_blank" style="color: var(--gold);">pinterest.com</a> → Business account + Bourbon board<br>
+            2. <a href="https://developers.pinterest.com" target="_blank" style="color: var(--gold);">developers.pinterest.com</a> → Create app<br>
+            3. Render: <code style="color: var(--gold);">PINTEREST_TOKEN</code> + <code style="color: var(--gold);">PINTEREST_BOARD_ID</code>
+        </div>
+    </div>
+    
+    <div class="card" style="margin-bottom: 10px;">
+        <h3 style="color: var(--text-primary); font-size: 1.05rem; margin-bottom: 8px;">❓ Quora <span style="font-size: 1rem; color: #b92b27;">Manual — No API</span></h3>
+        <div style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.6;">
+            1. <a href="https://quora.com" target="_blank" style="color: var(--gold);">quora.com</a> → Create account, follow bourbon topics<br>
+            2. Use Quora tab to generate answers, copy/paste manually
+        </div>
+    </div>
+    
+    <div class="card" style="background: rgba(200,164,94,0.06); border: 1px solid rgba(200,164,94,0.15);">
+        <h3 style="color: var(--gold); font-size: 1.05rem; margin-bottom: 8px;">📊 Weekly Schedule</h3>
+        <div style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.8;">
+            <strong style="color: var(--text-primary);">Mon:</strong> Blog → Medium<br>
+            <strong style="color: var(--text-primary);">Tue:</strong> Reddit r/bourbon + Quora answer<br>
+            <strong style="color: var(--text-primary);">Wed:</strong> Blog → WordPress<br>
+            <strong style="color: var(--text-primary);">Thu:</strong> Reddit r/whiskey + Quora answer<br>
+            <strong style="color: var(--text-primary);">Fri:</strong> Blog → Blogger + Pinterest pin<br>
+            <strong style="color: var(--text-primary);">Weekend:</strong> Reddit r/cocktails
+        </div>
+        <p style="font-size: 1.05rem; color: var(--text-muted); margin-top: 8px;">~10 indexed pieces/week across 6 platforms. Within 3 months, Google and LLMs surface Forbidden Bourbon significantly more.</p>
+    </div>
+</div>
+
+<script>
+let currentArticleId = null;
+let currentRedditId = null;
+
+function switchBlogMode(mode, btn) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    ['generateMode','redditMode','quoraMode','articlesMode','topicsMode','platformsMode'].forEach(id => {
+        document.getElementById(id).classList.toggle('hidden', id !== mode + 'Mode');
+    });
+}
+
+function selectTopic(sel) {
+    const opt = sel.options[sel.selectedIndex];
+    if (opt.value) {
+        document.getElementById('blogTopic').value = opt.value;
+        document.getElementById('blogKeywords').value = opt.dataset.keywords || '';
+    }
+}
+
+async function generateArticle() {
+    const topic = document.getElementById('blogTopic').value.trim();
+    if (!topic) { showToast('Enter a topic first', 'error'); return; }
+    const btn = document.getElementById('generateBtn');
+    btn.textContent = 'Generating...'; btn.disabled = true;
+    try {
+        const resp = await fetch('/api/blog/generate', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ topic, keywords: document.getElementById('blogKeywords').value, custom_prompt: document.getElementById('blogCustomPrompt').value })
+        });
+        const data = await resp.json();
+        if (data.success) {
+            currentArticleId = data.article.id;
+            document.getElementById('previewTitle').textContent = data.article.title;
+            document.getElementById('previewExcerpt').textContent = data.article.excerpt;
+            document.getElementById('previewContent').innerHTML = data.article.content;
+            document.getElementById('wordCount').textContent = data.article.word_count + ' words';
+            document.getElementById('previewCard').classList.remove('hidden');
+            showToast('Article generated!', 'success');
+        } else { showToast(data.error || 'Failed', 'error'); }
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+    btn.textContent = '✦ Generate Article'; btn.disabled = false;
+}
+
+async function publishTo(platform) {
+    if (!currentArticleId) { showToast('Generate an article first', 'error'); return; }
+    showToast('Publishing to ' + platform + '...', 'success');
+    try {
+        const resp = await fetch('/api/blog/publish/' + currentArticleId, {
+            method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ platform })
+        });
+        const data = await resp.json();
+        if (data.success) showToast('Published! ' + (data.url || ''), 'success');
+        else showToast(data.error || 'Failed', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+}
+
+async function generateReddit() {
+    const topic = document.getElementById('redditTopic').value.trim();
+    if (!topic) { showToast('Enter a topic', 'error'); return; }
+    const btn = document.getElementById('redditGenBtn');
+    btn.textContent = 'Generating...'; btn.disabled = true;
+    try {
+        const resp = await fetch('/api/blog/generate-reddit', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ topic, subreddit: document.getElementById('redditSubreddit').value })
+        });
+        const data = await resp.json();
+        if (data.success) {
+            currentRedditId = data.article.id;
+            document.getElementById('redditPreviewSub').textContent = data.article.subreddit;
+            document.getElementById('redditPreviewTitle').textContent = data.article.title;
+            document.getElementById('redditPreviewBody').textContent = data.article.body;
+            document.getElementById('redditPreview').classList.remove('hidden');
+            showToast('Reddit post ready!', 'success');
+        } else showToast(data.error, 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+    btn.textContent = '🤖 Generate Reddit Post'; btn.disabled = false;
+}
+
+async function publishReddit() {
+    if (!currentRedditId) return;
+    const sub = document.getElementById('redditPreviewSub').textContent;
+    showToast('Posting to r/' + sub + '...', 'success');
+    try {
+        const resp = await fetch('/api/blog/publish/' + currentRedditId, {
+            method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ platform: 'reddit', subreddit: sub })
+        });
+        const data = await resp.json();
+        if (data.success) showToast('Posted! ' + data.url, 'success');
+        else showToast(data.error, 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+}
+
+function copyReddit() {
+    const t = document.getElementById('redditPreviewTitle').textContent;
+    const b = document.getElementById('redditPreviewBody').textContent;
+    navigator.clipboard.writeText(t + '\n\n' + b); showToast('Copied!', 'success');
+}
+
+async function generateQuora() {
+    const topic = document.getElementById('quoraTopic').value.trim();
+    if (!topic) { showToast('Enter a question', 'error'); return; }
+    const btn = document.getElementById('quoraGenBtn');
+    btn.textContent = 'Generating...'; btn.disabled = true;
+    try {
+        const resp = await fetch('/api/blog/generate-quora', {
+            method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ topic })
+        });
+        const data = await resp.json();
+        if (data.success) {
+            document.getElementById('quoraPreviewQ').textContent = data.article.question;
+            document.getElementById('quoraPreviewA').textContent = data.article.answer;
+            document.getElementById('quoraTags').textContent = data.article.tags ? 'Tags: ' + data.article.tags : '';
+            document.getElementById('quoraPreview').classList.remove('hidden');
+            showToast('Answer ready!', 'success');
+        } else showToast(data.error, 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+    btn.textContent = '❓ Generate Answer'; btn.disabled = false;
+}
+
+function copyQuora() {
+    navigator.clipboard.writeText(document.getElementById('quoraPreviewA').textContent);
+    showToast('Copied!', 'success');
+}
+
+async function deleteArticle(id) {
+    if (!confirm('Delete?')) return;
+    await fetch('/api/blog/articles/' + id, { method: 'DELETE' }); location.reload();
+}
+
+function toggleArticle(id) {
+    const content = document.getElementById('content-' + id);
+    const arrow = document.getElementById('arrow-' + id);
+    if (content) {
+        content.classList.toggle('hidden');
+        if (arrow) arrow.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+    }
+}
+
+async function quickPublish(id, platform) {
+    showToast('Publishing to ' + platform + '...', 'success');
+    try {
+        const resp = await fetch('/api/blog/publish/' + id, {
+            method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ platform })
+        });
+        const data = await resp.json();
+        if (data.success) { showToast('Published! ' + (data.url || ''), 'success'); setTimeout(() => location.reload(), 1500); }
+        else showToast(data.error || 'Failed', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+}
+
+function copyArticle(id) {
+    const content = document.getElementById('content-' + id);
+    if (content) {
+        const text = content.innerText;
+        navigator.clipboard.writeText(text);
+        showToast('Article copied!', 'success');
+    }
+}
+
+async function addTopic() {
+    const title = document.getElementById('newTopicTitle').value.trim();
+    if (!title) { showToast('Enter a title', 'error'); return; }
+    await fetch('/api/blog/topics', { method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ title, category: document.getElementById('newTopicCategory').value, keywords: document.getElementById('newTopicKeywords').value })
+    });
+    showToast('Added!', 'success'); location.reload();
+}
+</script>
+{% endblock %}

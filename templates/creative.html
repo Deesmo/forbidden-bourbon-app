@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+{% block title %}Creative Studio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Creative Studio</h1>
+    <p class="subtitle">Generate AI images & video for Forbidden Bourbon</p>
+</div>
+
+<!-- FORMAT SELECTOR -->
+<div class="filter-tabs" style="margin-bottom: 20px;">
+    <button class="filter-tab active" onclick="setFormat('image', this)">🖼 Images</button>
+    <button class="filter-tab" onclick="setFormat('video', this)">🎬 Video</button>
+</div>
+
+<!-- CATEGORY SELECTOR -->
+<div class="card">
+    <div class="card-header">
+        <h2>What do you want to create?</h2>
+    </div>
+    <div class="category-grid" id="categoryGrid">
+        <button class="category-btn active" onclick="selectCategory('product', this)">
+            <span class="cat-icon">🥃</span>
+            <span class="cat-label">Product Shots</span>
+        </button>
+        <button class="category-btn" onclick="selectCategory('lifestyle', this)">
+            <span class="cat-icon">✨</span>
+            <span class="cat-label">Lifestyle</span>
+        </button>
+        <button class="category-btn" onclick="selectCategory('cocktail', this)">
+            <span class="cat-icon">🍸</span>
+            <span class="cat-label">Cocktails</span>
+        </button>
+        <button class="category-btn" onclick="selectCategory('seasonal', this)">
+            <span class="cat-icon">🗓</span>
+            <span class="cat-label">Seasonal</span>
+        </button>
+        <button class="category-btn" onclick="selectCategory('ad', this)">
+            <span class="cat-icon">📢</span>
+            <span class="cat-label">Ads</span>
+        </button>
+        <button class="category-btn" onclick="selectCategory('editorial', this)">
+            <span class="cat-icon">📰</span>
+            <span class="cat-label">Editorial</span>
+        </button>
+        <button class="category-btn" onclick="selectCategory('artistic', this)">
+            <span class="cat-icon">🎨</span>
+            <span class="cat-label">Artistic</span>
+        </button>
+        <button class="category-btn" onclick="selectCategory('event', this)">
+            <span class="cat-icon">🎉</span>
+            <span class="cat-label">Events</span>
+        </button>
+    </div>
+</div>
+
+<!-- STYLE OPTIONS -->
+<div class="card">
+    <div class="card-header">
+        <h2>Style</h2>
+    </div>
+    <div class="style-options">
+        <button class="style-btn active" onclick="selectStyle('photorealistic', this)">Photorealistic</button>
+        <button class="style-btn" onclick="selectStyle('cinematic', this)">Cinematic</button>
+        <button class="style-btn" onclick="selectStyle('artdeco', this)">Art Deco</button>
+        <button class="style-btn" onclick="selectStyle('moody', this)">Moody / Dark</button>
+        <button class="style-btn" onclick="selectStyle('luxury', this)">Luxury</button>
+        <button class="style-btn" onclick="selectStyle('vintage', this)">Vintage</button>
+        <button class="style-btn" onclick="selectStyle('minimal', this)">Minimal</button>
+        <button class="style-btn" onclick="selectStyle('social', this)">Social Media</button>
+    </div>
+</div>
+
+<!-- GENERATE BUTTON -->
+<button class="btn btn-primary btn-lg btn-block" onclick="generatePrompt()" style="margin-bottom: 20px; font-size: 1rem; padding: 16px;">
+    ✦ Generate Creative Prompt
+</button>
+
+<!-- RESULT -->
+<div class="card" id="resultCard" style="display: none;">
+    <div class="card-header">
+        <h2 id="resultTitle">Your Prompt</h2>
+        <button class="btn btn-ghost btn-sm" onclick="generatePrompt()">↻ New</button>
+    </div>
+
+    <!-- THE PROMPT -->
+    <div id="promptDisplay" style="background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-size: 1.05rem; line-height: 1.6; color: var(--text-primary); margin-bottom: 16px; white-space: pre-wrap; word-break: break-word;">
+    </div>
+
+    <!-- COPY BUTTONS -->
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+        <button class="btn btn-primary btn-sm" onclick="copyPrompt('midjourney')">Copy for Midjourney</button>
+        <button class="btn btn-secondary btn-sm" onclick="copyPrompt('dalle')">Copy for DALL·E</button>
+        <button class="btn btn-secondary btn-sm" onclick="copyPrompt('ideogram')">Copy for Ideogram</button>
+        <button class="btn btn-secondary btn-sm" onclick="copyPrompt('flux')">Copy for Flux</button>
+    </div>
+
+    <!-- VIDEO BUTTONS (hidden by default) -->
+    <div id="videoCopyBtns" style="display: none; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+        <button class="btn btn-primary btn-sm" onclick="copyPrompt('runway')">Copy for Runway</button>
+        <button class="btn btn-secondary btn-sm" onclick="copyPrompt('sora')">Copy for Sora</button>
+        <button class="btn btn-secondary btn-sm" onclick="copyPrompt('pika')">Copy for Pika</button>
+        <button class="btn btn-secondary btn-sm" onclick="copyPrompt('kling')">Copy for Kling</button>
+    </div>
+
+    <!-- ASPECT RATIO -->
+    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+        <span style="font-size: 1.02rem; color: var(--text-muted); align-self: center; margin-right: 4px;">RATIO:</span>
+        <button class="ratio-btn active" onclick="setRatio('1:1', this)">1:1</button>
+        <button class="ratio-btn" onclick="setRatio('4:5', this)">4:5</button>
+        <button class="ratio-btn" onclick="setRatio('9:16', this)">9:16</button>
+        <button class="ratio-btn" onclick="setRatio('16:9', this)">16:9</button>
+    </div>
+</div>
+
+<!-- PROMPT HISTORY -->
+<div class="card" id="historyCard" style="display: none;">
+    <div class="card-header">
+        <h2>Recent Prompts</h2>
+        <button class="btn btn-ghost btn-sm" onclick="clearHistory()">Clear</button>
+    </div>
+    <div id="historyList"></div>
+</div>
+
+<style>
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    .category-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 12px 6px;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--text-secondary);
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    .category-btn:hover { border-color: var(--border-light); }
+
+    .category-btn.active {
+        border-color: var(--gold-dark);
+        background: var(--gold-glow);
+        color: var(--gold);
+    }
+
+    .cat-icon { font-size: 1.3rem; }
+    .cat-label { font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; text-align: center; line-height: 1.2; }
+
+    .style-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .style-btn {
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+        background: var(--bg-input);
+        color: var(--text-secondary);
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    .style-btn:hover { border-color: var(--border-light); }
+
+    .style-btn.active {
+        border-color: var(--gold-dark);
+        background: var(--gold-glow);
+        color: var(--gold);
+    }
+
+    .ratio-btn {
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: var(--bg-input);
+        color: var(--text-muted);
+        font-family: 'DM Sans', sans-serif;
+        transition: all 0.2s;
+    }
+
+    .ratio-btn.active {
+        border-color: var(--gold-dark);
+        color: var(--gold);
+    }
+
+    .history-item {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .history-item:hover { color: var(--gold); }
+
+    .history-item .hist-text {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.5;
+    }
+
+    .history-item .hist-meta {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ===== STATE =====
+let currentFormat = 'image';
+let currentCategory = 'product';
+let currentStyle = 'photorealistic';
+let currentRatio = '1:1';
+let currentPrompt = '';
+let promptHistory = [];
+
+// ===== BRAND CONSTANTS =====
+const BRAND = {
+    bottle: 'elegant art deco bourbon whiskey bottle with dark navy blue label featuring ornate gold lettering reading "FORBIDDEN", geometric gold embossed patterns, amber bourbon liquid visible through clear glass',
+    singleBarrel: 'tall bourbon bottle with dark label reading "FORBIDDEN SINGLE BARREL", gold foil accents, art deco geometric design, cask strength bourbon',
+    colors: 'navy blue (#0b1426), gold (#c8a45e), warm amber, rich mahogany',
+    aesthetic: 'luxury art deco, 1920s prohibition era elegance, geometric gold patterns, sophisticated and rebellious',
+    setting: 'Kentucky bourbon country, Bardstown distillery, oak barrel aging warehouses, Southern elegance'
+};
+
+// ===== PROMPT TEMPLATES =====
+const TEMPLATES = {
+    image: {
+        product: [
+            `${BRAND.bottle}, dramatic studio lighting with warm side light, dark navy background, golden reflections on glass, bourbon droplets on bottle surface, shallow depth of field, {STYLE}`,
+            `${BRAND.bottle} on a reclaimed oak barrel head, copper distillery equipment in soft background, warm amber lighting, wisps of steam, {STYLE}`,
+            `${BRAND.bottle} next to a crystal rocks glass filled with amber bourbon, single large ice sphere, warm golden backlight creating a halo effect, dark moody background, {STYLE}`,
+            `Two bottles of Forbidden Bourbon — small batch and single barrel — displayed on polished dark wood surface, dramatic rim lighting in gold tones, art deco mirror behind reflecting warm light, {STYLE}`,
+            `Close-up of ${BRAND.bottle} label detail, gold embossed lettering, art deco geometric patterns catching warm light, shallow focus on the word "FORBIDDEN", {STYLE}`,
+            `${BRAND.bottle} being poured into a crystal glass, amber liquid stream catching dramatic golden light, dark background with subtle bokeh, splash detail, {STYLE}`,
+            `${BRAND.bottle} surrounded by raw ingredients — white corn kernels, wheat stalks, malted barley — on rustic Kentucky limestone, warm natural light, {STYLE}`,
+            `${BRAND.singleBarrel} placed on a charred oak barrel stave, distillery warehouse with rows of aging barrels in background, warm diffused light through dusty windows, {STYLE}`,
+        ],
+        lifestyle: [
+            `Stylish person in upscale bourbon bar holding crystal glass of amber bourbon, ${BRAND.bottle} visible on bar, warm intimate lighting, exposed brick walls, art deco bar details in gold, {STYLE}`,
+            `Outdoor Kentucky porch scene at golden hour, two glasses of bourbon on a weathered table, ${BRAND.bottle} between them, rolling green hills in background, fireflies beginning to appear, {STYLE}`,
+            `Elegant dinner party scene, ${BRAND.bottle} as centerpiece on candlelit table, crystal glassware, dark moody atmosphere with warm pools of light, Southern charm, {STYLE}`,
+            `Hands pouring from ${BRAND.bottle} at a intimate gathering, warm skin tones in golden light, dark sophisticated setting, art deco furniture visible, laughter and warmth implied, {STYLE}`,
+            `${BRAND.bottle} on a leather-topped desk in a study, antique books, warm desk lamp, vintage map on wall, sophisticated rebellion aesthetic, {STYLE}`,
+            `Rooftop cocktail scene at sunset, city skyline in background, ${BRAND.bottle} and craft cocktail tools on marble bar top, golden hour light, {STYLE}`,
+        ],
+        cocktail: [
+            `Forbidden bourbon Old Fashioned cocktail in crystal rocks glass, large clear ice sphere, orange peel garnish, ${BRAND.bottle} in soft background, dramatic rim lighting, dark bar surface, {STYLE}`,
+            `Bourbon Manhattan cocktail in coupe glass, cherry garnish, ${BRAND.bottle} alongside mixing glass and bar spoon, moody speakeasy atmosphere, art deco bar, {STYLE}`,
+            `Whiskey Sour with foam top in rocks glass, lemon wheel garnish, ${BRAND.bottle} behind, warm amber lighting, vintage cocktail shaker, {STYLE}`,
+            `Summer bourbon lemonade in tall glass with ice, lemon slices, mint sprig, ${BRAND.bottle} nearby, bright natural light, porch setting with wicker furniture, {STYLE}`,
+            `Gold Rush cocktail in coupe glass, honey dipper beside it, ${BRAND.bottle} in scene, warm golden backlight, honeycomb texture visible, {STYLE}`,
+            `Overhead flat lay of cocktail making scene — ${BRAND.bottle}, jigger, muddler, bitters, citrus, ice, crystal glass — on dark marble surface, organized chaos, {STYLE}`,
+        ],
+        seasonal: [
+            `${BRAND.bottle} in holiday setting, wrapped gifts with navy and gold ribbon, pine branches, twinkling warm lights, cozy fireplace glow in background, {STYLE}`,
+            `${BRAND.bottle} at outdoor summer barbecue, American flags, mason jar cocktails, golden sunset, patriotic bourbon celebration, {STYLE}`,
+            `Autumn scene with ${BRAND.bottle}, falling maple leaves in gold and amber tones, warm plaid blanket, apple and cinnamon garnishes, harvest table, {STYLE}`,
+            `Valentine's Day scene, ${BRAND.bottle} between two crystal glasses, red rose petals, candlelight, dark romantic atmosphere, chocolate truffles nearby, {STYLE}`,
+            `${BRAND.bottle} at New Year's Eve celebration, midnight countdown, sparklers and gold confetti, champagne tower alternative, elegant party setting, {STYLE}`,
+            `Spring garden party with ${BRAND.bottle}, fresh flowers, mint julep glasses, Kentucky Derby hats visible, bright cheerful light, {STYLE}`,
+        ],
+        ad: [
+            `Magazine advertisement layout for Forbidden Bourbon, ${BRAND.bottle} hero shot center frame, headline "WHEN NOTHING IS FORBIDDEN" in elegant gold serif type, dark navy background, art deco gold border frame, {STYLE}`,
+            `Social media ad for Forbidden Bourbon, ${BRAND.bottle} with dramatic pour shot, text overlay area at top, "Crafted by Kentucky's First Female Master Distiller", navy and gold color scheme, {STYLE}`,
+            `Billboard-style advertisement, ${BRAND.bottle} on dark background with golden glow, "THE OUTCOME IS PERFECTION" in gold lettering, minimal luxury layout, wide format, {STYLE}`,
+            `Instagram story ad format, vertical composition, ${BRAND.bottle} held by elegant hand against blurred bar background, swipe up prompt area at bottom, "Small Batch. Hand Blended.", {STYLE}`,
+            `Print ad showing ${BRAND.bottle} alongside award laurels (SF, NY, LA, Denver, Ascot), "PROOF OF PASSION" headline, sophisticated layout with gold accents on navy, {STYLE}`,
+            `Side-by-side comparison ad, Small Batch and Single Barrel bottles, "TWO PATHS. ONE VISION." gold text, split composition with navy background, {STYLE}`,
+        ],
+        editorial: [
+            `Editorial magazine spread of Master Distiller in bourbon warehouse, checking barrels, dramatic chiaroscuro lighting, industrial meets elegant, behind-the-scenes distillery moment, {STYLE}`,
+            `Close-up of bourbon being drawn from a barrel with a copper thief, amber liquid catching window light, distillery interior atmosphere, editorial documentary style, {STYLE}`,
+            `Kentucky rolling hills landscape with distillery buildings in distance, golden hour, bourbon country beauty, editorial travel photography style, {STYLE}`,
+            `Detail shot of charred oak barrel interior, honeycomb char pattern, warm amber tones, macro photography, the science and art of bourbon aging, {STYLE}`,
+            `White corn and wheat fields in Kentucky, sunset light illuminating grain, farm-to-glass story, agricultural beauty, editorial food photography, {STYLE}`,
+            `Hands inspecting grain — white corn kernels, wheat, malted barley — on a worn wooden table, distillery lab setting, craft and care, {STYLE}`,
+        ],
+        artistic: [
+            `Abstract art deco interpretation of bourbon making, geometric gold shapes, flowing amber liquid forms, navy and gold palette, 1920s prohibition era aesthetic, {STYLE}`,
+            `${BRAND.bottle} transformed into a surreal golden tower rising from a sea of amber liquid, art deco sun rays behind, dreamlike forbidden paradise, {STYLE}`,
+            `Stylized illustration of Kentucky bourbon country in art deco style, geometric rolling hills, a golden sun, distillery silhouette, navy and gold only, poster art, {STYLE}`,
+            `The word "FORBIDDEN" in ornate gold 3D lettering, dripping with amber bourbon, surrounded by art deco geometric patterns, dark navy void behind, {STYLE}`,
+            `Art deco poster design — a golden key unlocking a bourbon barrel, geometric rays of light, "Nothing is Forbidden" text, 1920s prohibition propaganda style, {STYLE}`,
+            `Photorealistic ${BRAND.bottle} shattering into golden geometric shards against dark navy background, bourbon liquid suspended in abstract shapes, dramatic luxury destruction, {STYLE}`,
+        ],
+        event: [
+            `Bourbon festival booth setup for Forbidden Bourbon, navy and gold branded backdrop, tasting stations, ${BRAND.bottle} displays, warm inviting atmosphere, people enjoying bourbon, {STYLE}`,
+            `Meet-the-maker event scene, Master Distiller presenting at podium, ${BRAND.bottle} on display, intimate gathering, warm lighting, bourbon education moment, {STYLE}`,
+            `VIP bourbon tasting experience, flight of Forbidden bourbons in crystal glasses, tasting notes cards, elegant navy tablecloth with gold accents, {STYLE}`,
+            `Bourbon & Beyond music festival scene, ${BRAND.bottle} at outdoor bar, festival lights and stage in background, crowd enjoying bourbon cocktails, golden sunset, {STYLE}`,
+            `Intimate barrel selection event, group gathered around single barrel in warehouse, ${BRAND.bottle} variants displayed, exclusive access feeling, warm dramatic lighting, {STYLE}`,
+        ],
+    },
+    video: {
+        product: [
+            `Slow motion pour of amber bourbon from ${BRAND.bottle} into crystal rocks glass, golden liquid catching dramatic light, ice sphere slowly cracking, steam rising, dark background, smooth camera drift, {STYLE}`,
+            `Camera slowly orbiting ${BRAND.bottle} on dark surface, golden reflections moving across glass, label details revealed as camera moves, subtle particles in air, cinematic lighting shift from cool to warm, {STYLE}`,
+            `Timelapse of ice sphere melting in glass of Forbidden bourbon, amber color slowly changing, condensation forming on glass, ${BRAND.bottle} in background, intimate macro perspective, {STYLE}`,
+            `Slow push-in on ${BRAND.bottle} label, starting wide with moody bar scene, gradually revealing gold embossed details, art deco patterns, the word FORBIDDEN filling frame, {STYLE}`,
+        ],
+        lifestyle: [
+            `Golden hour Kentucky porch scene, camera slowly panning across weathered table to reveal two glasses of bourbon and ${BRAND.bottle}, wind rustling through grass, warm nostalgic feel, {STYLE}`,
+            `Tracking shot through upscale bourbon bar, past patrons, bottles on shelves, landing on ${BRAND.bottle} being poured by bartender, warm amber lighting throughout, smooth steadicam, {STYLE}`,
+            `Drone shot over Kentucky bourbon country at sunset, descending from rolling hills landscape into distillery courtyard where ${BRAND.bottle} sits on barrel, golden hour light, {STYLE}`,
+        ],
+        cocktail: [
+            `Bartender crafting a Forbidden Old Fashioned step by step — muddling sugar, adding bitters, pouring from ${BRAND.bottle}, stirring with bar spoon, adding ice sphere, orange peel flame — overhead angle, smooth continuous shot, {STYLE}`,
+            `Slow motion cocktail splash — bourbon being poured over ice in rocks glass, amber liquid exploding upward in dramatic splash, ${BRAND.bottle} visible, dark background, high speed camera, {STYLE}`,
+        ],
+        seasonal: [
+            `Holiday scene transitioning from wrapped gift being opened to reveal ${BRAND.bottle}, warm fireplace glow, family celebration, camera follows bottle to being poured, toast moment, {STYLE}`,
+            `Summer to fall transition — same outdoor table with ${BRAND.bottle}, leaves changing color, light shifting from bright summer to warm autumn golden, cocktails changing from lemonade to neat pour, {STYLE}`,
+        ],
+        ad: [
+            `15-second brand spot: Dark screen, sound of barrel opening, camera pushes through darkness revealing ${BRAND.bottle} in dramatic single light, gold text animates "WHEN NOTHING IS FORBIDDEN", bottle glows, "THE OUTCOME IS PERFECTION", logo reveal, {STYLE}`,
+            `30-second brand story: Sequence of Kentucky grain fields, hands inspecting corn, barrel charring flames, bourbon flowing, culminating in ${BRAND.bottle} beauty shot, Master Distiller voiceover style, {STYLE}`,
+            `Instagram Reel format: Quick cuts — barrel, pour, sip, smile — ${BRAND.bottle} featured in each scene, punchy transitions, warm amber grade throughout, text overlays with brand facts, {STYLE}`,
+        ],
+        editorial: [
+            `Documentary-style walkthrough of bourbon making: grain inspection, milling, mashing, fermentation bubbling, distillation, barrel filling, aging warehouse — ending with ${BRAND.bottle} finished product, natural lighting, {STYLE}`,
+            `Interview-style setup with Master Distiller at distillery, rack focus between speaker and bourbon barrels, warm available light, intimate documentary feel, {STYLE}`,
+        ],
+        artistic: [
+            `Abstract animation: Gold liquid forming into art deco geometric patterns against navy background, shapes assembling into ${BRAND.bottle} silhouette, "FORBIDDEN" text materializing in gold, luxury motion graphics, {STYLE}`,
+            `Surreal dreamscape: Camera flying through a golden corridor of bourbon barrels that transforms into art deco architecture, ending at ${BRAND.bottle} on a pedestal, impossible spaces, {STYLE}`,
+        ],
+        event: [
+            `Event sizzle reel style: Quick cuts of bourbon being poured, glasses clinking, people laughing, ${BRAND.bottle} beauty shots, festival atmosphere, warm golden grade, upbeat energy, {STYLE}`,
+        ],
+    }
+};
+
+const STYLES = {
+    photorealistic: 'professional product photography, 8K, sharp detail, studio quality',
+    cinematic: 'cinematic film still, anamorphic lens, film grain, 35mm, color graded',
+    artdeco: 'art deco design style, geometric patterns, gold and navy, 1920s luxury aesthetic',
+    moody: 'dark moody atmosphere, deep shadows, single light source, noir aesthetic, dramatic contrast',
+    luxury: 'ultra luxury brand photography, high-end magazine quality, polished, aspirational',
+    vintage: 'vintage film photography, warm faded tones, retro 1960s advertising style, slightly desaturated',
+    minimal: 'minimalist composition, clean negative space, single subject, refined simplicity',
+    social: 'Instagram-optimized, vibrant, eye-catching, scroll-stopping composition, social media ready',
+};
+
+// ===== FUNCTIONS =====
+function setFormat(format, btn) {
+    currentFormat = format;
+    document.querySelectorAll('.filter-tabs .filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('resultCard').style.display = 'none';
+}
+
+function selectCategory(cat, btn) {
+    currentCategory = cat;
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function selectStyle(style, btn) {
+    currentStyle = style;
+    document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function setRatio(ratio, btn) {
+    currentRatio = ratio;
+    document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function generatePrompt() {
+    var templates = TEMPLATES[currentFormat][currentCategory];
+    if (!templates || templates.length === 0) {
+        templates = TEMPLATES[currentFormat]['product'];
+    }
+
+    var template = templates[Math.floor(Math.random() * templates.length)];
+    var styleText = STYLES[currentStyle];
+    currentPrompt = template.replace('{STYLE}', styleText);
+
+    document.getElementById('promptDisplay').textContent = currentPrompt;
+    document.getElementById('resultCard').style.display = 'block';
+    document.getElementById('resultTitle').textContent = currentFormat === 'video' ? 'Video Prompt' : 'Image Prompt';
+
+    // Show/hide appropriate copy buttons
+    var imgBtns = document.querySelector('#resultCard > div:nth-child(3)');
+    var vidBtns = document.getElementById('videoCopyBtns');
+    if (currentFormat === 'video') {
+        if (imgBtns) imgBtns.style.display = 'none';
+        vidBtns.style.display = 'flex';
+    } else {
+        if (imgBtns) imgBtns.style.display = 'flex';
+        vidBtns.style.display = 'none';
+    }
+
+    // Save to history
+    promptHistory.unshift({
+        text: currentPrompt,
+        category: currentCategory,
+        style: currentStyle,
+        format: currentFormat,
+        time: new Date().toLocaleTimeString()
+    });
+    if (promptHistory.length > 20) promptHistory.pop();
+    renderHistory();
+
+    // Scroll to result
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function copyPrompt(tool) {
+    var prompt = currentPrompt;
+    var ratio = currentRatio;
+
+    switch(tool) {
+        case 'midjourney':
+            prompt = '/imagine prompt: ' + prompt + ' --ar ' + ratio + ' --v 6.1 --style raw';
+            break;
+        case 'dalle':
+            prompt = prompt + '\n\nAspect ratio: ' + ratio;
+            break;
+        case 'ideogram':
+            prompt = prompt + '\n\nAspect ratio: ' + ratio + '\nStyle: Realistic';
+            break;
+        case 'flux':
+            prompt = prompt + ' [aspect ratio: ' + ratio + ']';
+            break;
+        case 'runway':
+            prompt = prompt + '\n\nDuration: 4 seconds\nAspect ratio: ' + ratio;
+            break;
+        case 'sora':
+            prompt = prompt + '\n\nAspect ratio: ' + ratio;
+            break;
+        case 'pika':
+            prompt = prompt;
+            break;
+        case 'kling':
+            prompt = prompt + '\n\nAspect ratio: ' + ratio;
+            break;
+    }
+
+    navigator.clipboard.writeText(prompt).then(function() {
+        showToast('Copied for ' + tool.charAt(0).toUpperCase() + tool.slice(1) + '!', 'success');
+    }).catch(function() {
+        var ta = document.createElement('textarea');
+        ta.value = prompt;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Copied for ' + tool.charAt(0).toUpperCase() + tool.slice(1) + '!', 'success');
+    });
+}
+
+function renderHistory() {
+    var card = document.getElementById('historyCard');
+    var list = document.getElementById('historyList');
+
+    if (promptHistory.length === 0) {
+        card.style.display = 'none';
+        return;
+    }
+
+    card.style.display = 'block';
+    list.innerHTML = promptHistory.map(function(item, i) {
+        return '<div class="history-item" onclick="loadHistory(' + i + ')">' +
+            '<div class="hist-text">' + item.text.substring(0, 120) + '...</div>' +
+            '<div class="hist-meta">' + item.format + ' · ' + item.category + ' · ' + item.style + ' · ' + item.time + '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function loadHistory(index) {
+    var item = promptHistory[index];
+    currentPrompt = item.text;
+    document.getElementById('promptDisplay').textContent = currentPrompt;
+    document.getElementById('resultCard').style.display = 'block';
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function clearHistory() {
+    promptHistory = [];
+    document.getElementById('historyCard').style.display = 'none';
+}
+</script>
+{% endblock %}

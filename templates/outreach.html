@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+{% block title %}Outreach Hub{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<div style="position: relative; margin: -16px -16px 16px -16px; height: 80px; overflow: hidden;">
+    <img src="/static/photos/bottle-top.jpg" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.15; filter: blur(2px);">
+    <div style="position: relative; z-index: 1; height: 100%; display: flex; align-items: center; padding: 0 16px;">
+        <div>
+            <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--gold); margin: 0;">Outreach Hub</h1>
+            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 2px 0 0 0;">Find bourbon influencers, get their emails, send product</p>
+        </div>
+    </div>
+</div>
+
+<!-- STATS -->
+<div class="stat-grid" style="margin-bottom: 16px;">
+    <div class="stat-card accent">
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Contacts</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.with_email }}</div>
+        <div class="stat-label">Emails</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.contacted }}</div>
+        <div class="stat-label">Contacted</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.product_sent }}</div>
+        <div class="stat-label">Sent Product</div>
+    </div>
+</div>
+
+<!-- SCAN BUTTONS -->
+<div style="margin-bottom: 16px;">
+    <button class="btn btn-primary btn-block" id="scanBtn" onclick="runOutreachScan()" style="background: linear-gradient(135deg, var(--gold), #e0c070);">
+        🔍 Scan for Bourbon Influencers & Contacts
+    </button>
+    <div id="scanStatus" style="font-size: 0.95rem; color: var(--text-muted); text-align: center; margin-top: 6px;"></div>
+</div>
+
+<!-- FILTER TABS -->
+<div class="filter-tabs" style="margin-bottom: 16px; flex-wrap: wrap;">
+    <button class="filter-tab active" onclick="filterContacts('all', this)">All ({{ stats.total }})</button>
+    <button class="filter-tab" onclick="filterContacts('influencer', this)">🎬 Influencers ({{ stats.influencers }})</button>
+    <button class="filter-tab" onclick="filterContacts('industry', this)">🥃 Industry ({{ stats.industry }})</button>
+    <button class="filter-tab" onclick="filterContacts('media', this)">📰 Media ({{ stats.media }})</button>
+    <button class="filter-tab" onclick="filterContacts('adjacent', this)">🔥 Adjacent ({{ stats.adjacent }})</button>
+    <button class="filter-tab" onclick="filterContacts('community', this)">👥 Community ({{ stats.community }})</button>
+    <button class="filter-tab" onclick="switchView('templates', this)">✉️ Templates</button>
+    <button class="filter-tab" onclick="switchView('add', this)">＋ Add</button>
+</div>
+
+<!-- CONTACTS LIST -->
+<div id="contactsList">
+    {% if contacts %}
+    {% for c in contacts %}
+    <div class="card contact-card" style="margin-bottom: 10px;" data-category="{{ c.category }}" data-status="{{ c.status }}" id="contact-{{ c.id }}">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="flex: 1; cursor: pointer;" onclick="toggleContact({{ c.id }})">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: wrap;">
+                    <span style="font-size: 1rem;">
+                        {% if c.category == 'influencer' %}🎬{% elif c.category == 'industry' %}🥃{% elif c.category == 'media' %}📰{% elif c.category == 'adjacent' %}🔥{% elif c.category == 'community' %}👥{% else %}📋{% endif %}
+                    </span>
+                    <strong style="color: var(--text-primary); font-size: 1rem;">{{ c.name }}</strong>
+                    {% if c.email %}<span style="font-size: 0.85rem; background: rgba(74,222,128,0.15); color: #4ade80; padding: 1px 6px; border-radius: 8px;">📧 Has Email</span>{% endif %}
+                    {% if c.product_sent %}<span style="font-size: 0.85rem; background: rgba(251,191,36,0.15); color: #fbbf24; padding: 1px 6px; border-radius: 8px;">📦 Sent</span>{% endif %}
+                    {% if c.responded %}<span style="font-size: 0.85rem; background: rgba(96,165,250,0.15); color: #60a5fa; padding: 1px 6px; border-radius: 8px;">✓ Replied</span>{% endif %}
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; font-size: 0.95rem; color: var(--text-muted); flex-wrap: wrap;">
+                    {% if c.platform %}<span>{{ c.platform }}</span>{% endif %}
+                    {% if c.platform_handle %}<span>@{{ c.platform_handle }}</span>{% endif %}
+                    {% if c.followers > 0 %}<span>· {{ '{:,}'.format(c.followers) }} followers</span>{% endif %}
+                    <span style="text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem;">· Tier {{ c.tier }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- EXPANDABLE DETAILS -->
+        <div id="detail-{{ c.id }}" class="hidden" style="margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px;">
+            {% if c.email %}
+            <div style="margin-bottom: 8px;">
+                <span style="font-size: 0.95rem; color: var(--text-muted);">Email:</span>
+                <a href="mailto:{{ c.email }}" style="color: var(--gold); font-size: 1rem;">{{ c.email }}</a>
+                <button onclick="copyText('{{ c.email }}')" style="background: none; border: none; cursor: pointer; color: var(--gold); font-size: 0.95rem;">📋</button>
+            </div>
+            {% endif %}
+            {% if c.platform_url %}
+            <div style="margin-bottom: 8px;">
+                <span style="font-size: 0.95rem; color: var(--text-muted);">Profile:</span>
+                <a href="{{ c.platform_url }}" target="_blank" style="color: var(--gold); font-size: 0.95rem; word-break: break-all;">{{ c.platform_url }}</a>
+            </div>
+            {% endif %}
+            {% if c.notes %}
+            <div style="margin-bottom: 8px; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5;">{{ c.notes }}</div>
+            {% endif %}
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+                <select onchange="updateStatus({{ c.id }}, this.value)" style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 4px; color: var(--text-primary); padding: 4px 8px; font-size: 0.95rem;">
+                    <option value="new" {% if c.status == 'new' %}selected{% endif %}>New</option>
+                    <option value="researching" {% if c.status == 'researching' %}selected{% endif %}>Researching</option>
+                    <option value="ready" {% if c.status == 'ready' %}selected{% endif %}>Ready to Contact</option>
+                    <option value="contacted" {% if c.status == 'contacted' %}selected{% endif %}>Contacted</option>
+                    <option value="responded" {% if c.status == 'responded' %}selected{% endif %}>Responded</option>
+                    <option value="product_sent" {% if c.status == 'product_sent' %}selected{% endif %}>Product Sent</option>
+                    <option value="posted" {% if c.status == 'posted' %}selected{% endif %}>Posted About Us</option>
+                    <option value="declined" {% if c.status == 'declined' %}selected{% endif %}>Declined</option>
+                    <option value="no_response" {% if c.status == 'no_response' %}selected{% endif %}>No Response</option>
+                </select>
+                {% if c.email %}<button onclick="composeEmail({{ c.id }}, '{{ c.name }}', '{{ c.email }}')" class="btn btn-ghost btn-sm" style="font-size: 0.95rem;">✉️ Draft Email</button>{% endif %}
+                <button onclick="toggleProductSent({{ c.id }})" class="btn btn-ghost btn-sm" style="font-size: 0.95rem;">📦 {% if c.product_sent %}Unsend{% else %}Mark Sent{% endif %}</button>
+                <button onclick="deleteContact({{ c.id }})" style="color: #f87171; background: none; border: none; cursor: pointer; font-size: 0.95rem;">Delete</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="card" style="text-align: center; padding: 32px;">
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">🎯</div>
+        <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 12px;">No contacts yet.</p>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Hit "Scan for Bourbon Influencers" to find YouTubers, bloggers, reviewers, bar owners, and more.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- EMAIL TEMPLATES VIEW -->
+<div id="templatesView" class="hidden">
+    <div class="card" style="margin-bottom: 12px;">
+        <h3 style="color: var(--gold); font-size: 1.05rem; margin-bottom: 12px;">✉️ Outreach Email Templates</h3>
+        <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 16px;">Copy and customize these for your outreach. Tap any template to copy.</p>
+        
+        <div id="emailTemplates">
+            <div class="card" style="margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border);" onclick="copyTemplate(this)">
+                <div style="font-size: 0.85rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">🎬 Influencer / Reviewer</div>
+                <div style="font-size: 0.95rem; color: var(--text-primary); font-weight: 600; margin-bottom: 6px;">Subject: Forbidden Bourbon — Would Love Your Honest Review</div>
+                <div style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">Hi [NAME],
+
+I'm a big fan of your bourbon content — your [SPECIFIC VIDEO/POST] really resonated with our team at Forbidden Bourbon.
+
+We're a premium Kentucky wheated bourbon crafted by Master Distiller Marianne Eaves at Bardstown Bourbon Company. We'd love to send you a bottle of our Small Batch Select for an honest review — no strings attached.
+
+We're not looking for a paid promotion. We genuinely believe our bourbon speaks for itself, and we'd value your perspective.
+
+If you're interested, just let me know where to ship and we'll get it out to you.
+
+Cheers,
+[YOUR NAME]
+Forbidden Bourbon
+drinkforbidden.com</div>
+            </div>
+
+            <div class="card" style="margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border);" onclick="copyTemplate(this)">
+                <div style="font-size: 0.85rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">🥃 Bar / Restaurant Buyer</div>
+                <div style="font-size: 0.95rem; color: var(--text-primary); font-weight: 600; margin-bottom: 6px;">Subject: Forbidden Bourbon — New Premium Wheated Bourbon for Your Bar</div>
+                <div style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">Hi [NAME],
+
+I'm reaching out from Forbidden Bourbon — a premium Kentucky wheated bourbon crafted by Marianne Eaves at Bardstown Bourbon Company.
+
+We'd love to get Forbidden on your menu. Our Small Batch Select is a versatile pour that works beautifully neat, on the rocks, or in cocktails (our Holiday Whiskey Sour and Forbidden Old Fashioned are crowd favorites).
+
+Would you be open to a tasting? We can send samples or arrange an in-person visit.
+
+Best,
+[YOUR NAME]
+Forbidden Bourbon
+drinkforbidden.com</div>
+            </div>
+
+            <div class="card" style="margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border);" onclick="copyTemplate(this)">
+                <div style="font-size: 0.85rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">📰 Press / Media</div>
+                <div style="font-size: 0.95rem; color: var(--text-primary); font-weight: 600; margin-bottom: 6px;">Subject: Story Pitch — Marianne Eaves & Forbidden Bourbon</div>
+                <div style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">Hi [NAME],
+
+I wanted to share a story that might interest your readers: Marianne Eaves, one of Kentucky's most celebrated distillers, crafted Forbidden Bourbon — a premium wheated bourbon produced at Bardstown Bourbon Company.
+
+What makes Forbidden unique is both the pedigree of its maker and the approach: a wheated mash bill designed for approachability without sacrificing complexity. Available as Small Batch Select and Single Barrel expressions.
+
+We'd be happy to send samples for review, provide high-res images, or arrange an interview with the team.
+
+Best regards,
+[YOUR NAME]
+Forbidden Bourbon
+drinkforbidden.com</div>
+            </div>
+
+            <div class="card" style="margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border);" onclick="copyTemplate(this)">
+                <div style="font-size: 0.85rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">🔥 BBQ / Lifestyle / Adjacent Influencer</div>
+                <div style="font-size: 0.95rem; color: var(--text-primary); font-weight: 600; margin-bottom: 6px;">Subject: Forbidden Bourbon x [THEIR BRAND] — Collab?</div>
+                <div style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">Hey [NAME],
+
+Your content is awesome — love what you're doing with [SPECIFIC CONTENT].
+
+We're Forbidden Bourbon, a premium Kentucky wheated bourbon, and we think our brand would pair perfectly with what you're building. Would love to send you a bottle and explore a collab — whether that's a bourbon + [BBQ/cigars/etc] pairing post, a giveaway, or just getting our bourbon in your hands.
+
+No pressure, no scripts. Just good bourbon and creative freedom.
+
+Interested?
+
+Cheers,
+[YOUR NAME]
+Forbidden Bourbon
+drinkforbidden.com</div>
+            </div>
+
+            <div class="card" style="margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border);" onclick="copyTemplate(this)">
+                <div style="font-size: 0.85rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">👥 Community Leader / Group Admin</div>
+                <div style="font-size: 0.95rem; color: var(--text-primary); font-weight: 600; margin-bottom: 6px;">Subject: Free Bottles for Your Bourbon Group</div>
+                <div style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">Hi [NAME],
+
+I run marketing for Forbidden Bourbon, and I see you're running [GROUP NAME] — incredible community you've built.
+
+We'd love to partner with your group. We can offer:
+• Free bottles for group tastings or giveaways
+• Exclusive discount codes for your members
+• Virtual tasting event with our team
+
+Forbidden is a premium Kentucky wheated bourbon by Marianne Eaves, produced at Bardstown Bourbon Company. We think your members would love it.
+
+Would any of that interest you or your group?
+
+Cheers,
+[YOUR NAME]
+Forbidden Bourbon
+drinkforbidden.com</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADD MANUALLY VIEW -->
+<div id="addView" class="hidden">
+    <div class="card" style="margin-bottom: 12px;">
+        <h3 style="color: var(--gold); font-size: 1.05rem; margin-bottom: 12px;">Add Contact Manually</h3>
+        <input type="text" class="form-input" id="addName" placeholder="Name..." style="margin-bottom: 8px;">
+        <input type="email" class="form-input" id="addEmail" placeholder="Email..." style="margin-bottom: 8px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+            <input type="text" class="form-input" id="addPlatform" placeholder="Platform (YouTube, Instagram...)" style="flex: 1;">
+            <input type="text" class="form-input" id="addHandle" placeholder="@handle" style="flex: 1;">
+        </div>
+        <input type="text" class="form-input" id="addUrl" placeholder="Profile URL..." style="margin-bottom: 8px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+            <input type="number" class="form-input" id="addFollowers" placeholder="Followers" style="flex: 1;">
+            <select class="form-input" id="addCategory" style="flex: 1;">
+                <option value="influencer">🎬 Influencer</option>
+                <option value="industry">🥃 Industry</option>
+                <option value="media">📰 Media</option>
+                <option value="adjacent">🔥 Adjacent</option>
+                <option value="community">👥 Community</option>
+            </select>
+            <select class="form-input" id="addTier" style="flex: 0.5;">
+                <option value="1">T1</option>
+                <option value="2">T2</option>
+                <option value="3">T3</option>
+            </select>
+        </div>
+        <textarea class="form-input" id="addNotes" rows="2" placeholder="Notes..." style="margin-bottom: 8px;"></textarea>
+        <button class="btn btn-primary btn-block" onclick="addContact()">+ Add Contact</button>
+    </div>
+</div>
+
+<!-- DRAFT EMAIL MODAL -->
+<div id="emailModal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 16px;">
+    <div class="card" style="max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto;">
+        <h3 style="color: var(--gold); margin-bottom: 12px;">Draft Email to <span id="emailTo"></span></h3>
+        <input type="text" class="form-input" id="emailSubject" placeholder="Subject..." style="margin-bottom: 8px;">
+        <textarea class="form-input" id="emailBody" rows="12" style="margin-bottom: 8px; font-size: 0.95rem; line-height: 1.6;"></textarea>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-primary" onclick="copyEmail()" style="flex: 1;">📋 Copy Email</button>
+            <button class="btn btn-ghost" onclick="openMailto()" style="flex: 1;">📧 Open Mail App</button>
+            <button class="btn btn-ghost" onclick="closeEmailModal()" style="flex: 0.5;">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentEmailAddr = '';
+
+function filterContacts(cat, btn) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('contactsList').classList.remove('hidden');
+    document.getElementById('templatesView').classList.add('hidden');
+    document.getElementById('addView').classList.add('hidden');
+    
+    document.querySelectorAll('.contact-card').forEach(card => {
+        card.style.display = (cat === 'all' || card.dataset.category === cat) ? '' : 'none';
+    });
+}
+
+function switchView(view, btn) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('contactsList').classList.add('hidden');
+    document.getElementById('templatesView').classList[view === 'templates' ? 'remove' : 'add']('hidden');
+    document.getElementById('addView').classList[view === 'add' ? 'remove' : 'add']('hidden');
+}
+
+function toggleContact(id) {
+    document.getElementById('detail-' + id).classList.toggle('hidden');
+}
+
+async function runOutreachScan() {
+    const btn = document.getElementById('scanBtn');
+    const status = document.getElementById('scanStatus');
+    btn.textContent = '🔍 Scanning bourbon sites for influencers... (1-2 min)';
+    btn.disabled = true;
+    status.textContent = 'Scraping YouTube, Instagram, blogs, Reddit, bourbon sites for public contact info...';
+    
+    try {
+        const resp = await fetch('/api/outreach/scan', { method: 'POST' });
+        const data = await resp.json();
+        if (data.success) {
+            status.textContent = `Found ${data.found} contacts — ${data.saved} new, ${data.emails_found} with emails`;
+            showToast(`${data.saved} new contacts found!`, 'success');
+            if (data.saved > 0) setTimeout(() => location.reload(), 2000);
+        } else {
+            status.textContent = data.error || 'Scan failed';
+        }
+    } catch (err) {
+        status.textContent = 'Error: ' + err.message;
+    }
+    btn.textContent = '🔍 Scan for Bourbon Influencers & Contacts';
+    btn.disabled = false;
+}
+
+async function updateStatus(id, status) {
+    await fetch('/api/outreach/contacts/' + id, {
+        method: 'PUT', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ status })
+    });
+    showToast('Status updated', 'success');
+}
+
+async function toggleProductSent(id) {
+    await fetch('/api/outreach/contacts/' + id + '/toggle-sent', { method: 'POST' });
+    showToast('Updated', 'success');
+    location.reload();
+}
+
+async function deleteContact(id) {
+    if (!confirm('Delete this contact?')) return;
+    await fetch('/api/outreach/contacts/' + id, { method: 'DELETE' });
+    document.getElementById('contact-' + id).remove();
+    showToast('Deleted', 'success');
+}
+
+function composeEmail(id, name, email) {
+    currentEmailAddr = email;
+    document.getElementById('emailTo').textContent = name;
+    document.getElementById('emailSubject').value = 'Forbidden Bourbon — Would Love Your Honest Review';
+    document.getElementById('emailBody').value = `Hi ${name},\n\nI'm a big fan of your bourbon content and wanted to reach out from Forbidden Bourbon.\n\nWe're a premium Kentucky wheated bourbon crafted by Master Distiller Marianne Eaves at Bardstown Bourbon Company. We'd love to send you a bottle for an honest review — no strings attached.\n\nWe genuinely believe our bourbon speaks for itself, and we'd value your perspective.\n\nIf you're interested, just let me know where to ship and we'll get it out to you.\n\nCheers,\n[YOUR NAME]\nForbidden Bourbon\ndrinkforbidden.com`;
+    document.getElementById('emailModal').classList.remove('hidden');
+}
+
+function closeEmailModal() { document.getElementById('emailModal').classList.add('hidden'); }
+
+function copyEmail() {
+    const subj = document.getElementById('emailSubject').value;
+    const body = document.getElementById('emailBody').value;
+    navigator.clipboard.writeText('Subject: ' + subj + '\n\n' + body);
+    showToast('Email copied!', 'success');
+}
+
+function openMailto() {
+    const subj = encodeURIComponent(document.getElementById('emailSubject').value);
+    const body = encodeURIComponent(document.getElementById('emailBody').value);
+    window.open(`mailto:${currentEmailAddr}?subject=${subj}&body=${body}`);
+}
+
+function copyTemplate(el) {
+    const text = el.querySelector('div:last-child').textContent;
+    navigator.clipboard.writeText(text);
+    showToast('Template copied!', 'success');
+}
+
+function copyText(text) {
+    navigator.clipboard.writeText(text);
+    showToast('Copied!', 'success');
+}
+
+async function addContact() {
+    const name = document.getElementById('addName').value.trim();
+    if (!name) { showToast('Enter a name', 'error'); return; }
+    
+    try {
+        await fetch('/api/outreach/contacts', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                name,
+                email: document.getElementById('addEmail').value,
+                platform: document.getElementById('addPlatform').value,
+                platform_handle: document.getElementById('addHandle').value,
+                platform_url: document.getElementById('addUrl').value,
+                followers: parseInt(document.getElementById('addFollowers').value) || 0,
+                category: document.getElementById('addCategory').value,
+                tier: document.getElementById('addTier').value,
+                notes: document.getElementById('addNotes').value
+            })
+        });
+        showToast('Contact added!', 'success');
+        location.reload();
+    } catch (err) { showToast('Error', 'error'); }
+}
+</script>
+{% endblock %}

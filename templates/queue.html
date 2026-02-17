@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Queue{% endblock %}
+
+{% block content %}
+<!-- QUEUE HERO -->
+<div style="position: relative; margin: -16px -16px 16px -16px; height: 72px; overflow: hidden;">
+    <img src="/static/photos/bottle-top.jpg" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.18; filter: blur(2px);">
+    <div style="position: relative; z-index: 1; height: 100%; display: flex; align-items: center; padding: 0 16px;">
+        <div>
+            <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--gold); margin: 0;">Content Queue</h1>
+            <p style="font-size: 1.05rem; color: var(--text-muted); margin: 2px 0 0 0;">{{ posts|length }} post{% if posts|length != 1 %}s{% endif %}</p>
+        </div>
+    </div>
+</div>
+
+<!-- FILTER TABS -->
+<div class="filter-tabs">
+    <a href="/queue?status=all" class="filter-tab {% if status_filter == 'all' %}active{% endif %}">All</a>
+    <a href="/queue?status=draft" class="filter-tab {% if status_filter == 'draft' %}active{% endif %}">Drafts</a>
+    <a href="/queue?status=scheduled" class="filter-tab {% if status_filter == 'scheduled' %}active{% endif %}">Scheduled</a>
+    <a href="/queue?status=published" class="filter-tab {% if status_filter == 'published' %}active{% endif %}">Published</a>
+    <a href="/queue?status=failed" class="filter-tab {% if status_filter == 'failed' %}active{% endif %}">Failed</a>
+</div>
+
+<!-- POSTS LIST -->
+{% if posts %}
+    {% for post in posts %}
+    <div class="post-card" id="post-{{ post.id }}">
+        <div class="post-meta">
+            <span class="status-badge {{ post.status }}">
+                <span class="status-dot {{ post.status }}"></span>
+                {{ post.status }}
+            </span>
+            <span class="text-xs text-muted">
+                {% if post.status == 'scheduled' and post.scheduled_at %}
+                    ⏰ {{ post.scheduled_at|shortdate }}
+                {% elif post.status == 'published' and post.published_at %}
+                    {{ post.published_at|timeago }}
+                {% else %}
+                    {{ post.created_at|timeago }}
+                {% endif %}
+            </span>
+        </div>
+        
+        {% if post.image_path %}
+        <img src="{{ post.image_path }}" class="post-image" alt="Post image">
+        {% endif %}
+        
+        <div class="post-content" id="content-{{ post.id }}">{{ post.content }}</div>
+        
+        <div class="post-platforms">
+            {% for p in post.platforms %}
+            <span class="status-badge {% if p.status == 'published' %}published{% elif p.status == 'failed' %}failed{% else %}draft{% endif %}" style="font-size: 1.05rem;">
+                <span class="platform-dot {{ p.platform_name }}"></span>
+                {{ p.platform_name }}
+                {% if p.status == 'published' %}✓{% elif p.status == 'failed' %}✕{% endif %}
+            </span>
+            {% endfor %}
+        </div>
+        
+        {% if post.notes %}
+        <div class="text-xs text-muted" style="margin-top: 6px; font-style: italic;">📝 {{ post.notes }}</div>
+        {% endif %}
+        
+        <div class="post-actions">
+            {% if post.status in ['draft', 'scheduled', 'failed'] %}
+            <button class="btn btn-primary btn-sm" onclick="publishPost({{ post.id }})">
+                ⚡ Publish Now
+            </button>
+            {% endif %}
+            <a href="/compose?edit={{ post.id }}" class="btn btn-secondary btn-sm">✎ Edit</a>
+            <button class="btn btn-ghost btn-sm" onclick="duplicatePost({{ post.id }})">⊕ Duplicate</button>
+            <button class="btn btn-ghost btn-sm" onclick="deletePost({{ post.id }})" style="color: var(--danger);">✕</button>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon">☰</div>
+        <div class="empty-text">
+            {% if status_filter == 'all' %}
+                No posts yet. Start creating!
+            {% else %}
+                No {{ status_filter }} posts.
+            {% endif %}
+        </div>
+        <a href="/compose" class="btn btn-primary">Create Post</a>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Highlight hashtags in post content
+    document.querySelectorAll('.post-content').forEach(el => {
+        el.innerHTML = formatContent(el.textContent);
+    });
+    
+    async function publishPost(postId) {
+        if (!confirmAction('Publish this post to all selected platforms now?')) return;
+        
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = 'Publishing...';
+        
+        try {
+            const data = await apiCall(`/api/posts/${postId}/publish`, 'POST');
+            
+            if (data.success) {
+                showToast('Post published!', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                let errorMsg = 'Publish failed';
+                if (data.results) {
+                    const errors = data.results.filter(r => !r.success).map(r => `${r.platform}: ${r.error}`);
+                    if (errors.length) errorMsg = errors.join('; ');
+                }
+                showToast(errorMsg, 'error');
+                btn.disabled = false;
+                btn.textContent = '⚡ Publish Now';
+            }
+        } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+            btn.disabled = false;
+            btn.textContent = '⚡ Publish Now';
+        }
+    }
+    
+    async function duplicatePost(postId) {
+        try {
+            const data = await apiCall(`/api/posts/${postId}/duplicate`, 'POST');
+            if (data.success) {
+                showToast('Post duplicated as draft', 'success');
+                setTimeout(() => location.reload(), 1000);
+            }
+        } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+        }
+    }
+    
+    async function deletePost(postId) {
+        if (!confirmAction('Delete this post?')) return;
+        
+        try {
+            const data = await apiCall(`/api/posts/${postId}`, 'DELETE');
+            if (data.success) {
+                document.getElementById(`post-${postId}`).remove();
+                showToast('Post deleted', 'success');
+            }
+        } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+        }
+    }
+</script>
+{% endblock %}
